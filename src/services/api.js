@@ -1,4 +1,4 @@
-import axios from 'axios' /
+import axios from 'axios' 
 
 const api = axios.create({
   // Menggunakan IP lokal agar kompatibilitas CORS di Laragon jauh lebih stabil
