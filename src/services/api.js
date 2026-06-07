@@ -3,8 +3,8 @@ import axios from 'axios'
 const api = axios.create({
   // Menggunakan IP lokal agar kompatibilitas CORS di Laragon jauh lebih stabil
   baseURL: 'https://hydromart-backend-production.up.railway.app/api',
-  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-  withCredentials: true,
+  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+
 })
 
 // Pasang Token Otomatis ke Setiap Request
