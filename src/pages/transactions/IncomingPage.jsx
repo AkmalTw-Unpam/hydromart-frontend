@@ -31,34 +31,17 @@ export default function IncomingPage() {
     setLoading(true)
     try {
       const { data } = await transactionsApi.incomingList({ search, page, per_page: 15, date_from: dateFrom, date_to: dateTo })
-      
-      if (data && data.data) {
-        setRows(Array.isArray(data.data) ? data.data : Array.isArray(data.data.data) ? data.data.data : [])
-      } else if (Array.isArray(data)) {
-        setRows(data)
-      } else {
-        setRows([])
-      }
-      
-      setMeta(data?.meta || null)
-    } catch (_) {
-      toast.error('Gagal memuat riwayat transaksi masuk.')
-    }
+      setRows(data.data)
+      setMeta(data.meta)
+    } catch (_) {}
     setLoading(false)
   }, [search, page, dateFrom, dateTo])
 
   useEffect(() => { fetch() }, [fetch])
 
   useEffect(() => {
-    itemsApi.list({ per_page: 999, is_active: true }).then(r => {
-      const resData = r.data
-      setItems(resData?.data && Array.isArray(resData.data) ? resData.data : Array.isArray(resData) ? resData : [])
-    }).catch(err => console.error(err))
-
-    suppliersApi.list({ per_page: 999 }).then(r => {
-      const resData = r.data
-      setSuppliers(resData?.data && Array.isArray(resData.data) ? resData.data : Array.isArray(resData) ? resData : [])
-    }).catch(err => console.error(err))
+    itemsApi.list({ per_page: 999, is_active: true }).then(r => setItems(r.data.data))
+    suppliersApi.list({ per_page: 999 }).then(r => setSuppliers(r.data.data))
   }, [])
 
   const openCreate = () => { setForm(INITIAL_FORM); setFormErrors({}); setModalOpen(true) }
@@ -81,7 +64,7 @@ export default function IncomingPage() {
   const fmtDate = d => d ? new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
   const fmtRp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID')
 
-  const selectedItem = Array.isArray(items) ? items.find(i => i.id == form.item_id) : null
+  const selectedItem = items.find(i => i.id == form.item_id)
 
   return (
     <div className="space-y-5">
@@ -91,6 +74,7 @@ export default function IncomingPage() {
         actions={<button onClick={openCreate} className="btn-primary"><Plus size={16} /> Catat Barang Masuk</button>}
       />
 
+      {/* Filters */}
       <div className="card p-4">
         <div className="flex flex-wrap gap-3 items-center">
           <div className="flex-1 min-w-[180px]">
@@ -105,7 +89,8 @@ export default function IncomingPage() {
         </div>
       </div>
 
-      {loading ? <TableSkeleton cols={8} rows={10} /> : (
+      {/* Table */}
+      {loading ? <TableSkeleton cols={7} rows={10} /> : (
         <div className="card overflow-hidden">
           <div className="px-6 py-3.5 border-b border-slate-100 dark:border-navy-800 flex items-center gap-2">
             <ArrowDownToLine size={15} className="text-emerald-500" />
@@ -122,7 +107,7 @@ export default function IncomingPage() {
                 </tr>
               </thead>
               <tbody>
-                {!Array.isArray(rows) || rows.length === 0 ? (
+                {rows.length === 0 ? (
                   <tr><td colSpan={8}><EmptyState icon={ArrowDownToLine} title="Belum ada transaksi masuk" description="Klik tombol 'Catat Barang Masuk' untuk memulai." /></td></tr>
                 ) : rows.map(r => (
                   <tr key={r.id}>
@@ -146,6 +131,7 @@ export default function IncomingPage() {
         </div>
       )}
 
+      {/* Modal */}
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -174,14 +160,14 @@ export default function IncomingPage() {
           <FormField label="Pilih Barang" required error={formErrors?.item_id}>
             <select className="select" value={form.item_id} onChange={e => setForm(p => ({ ...p, item_id: e.target.value }))}>
               <option value="">— Pilih barang —</option>
-              {Array.isArray(items) && items.map(i => <option key={i.id} value={i.id}>{i.name} ({i.code})</option>)}
+              {items.map(i => <option key={i.id} value={i.id}>{i.name} ({i.code})</option>)}
             </select>
           </FormField>
 
           <FormField label="Supplier" error={formErrors?.supplier_id}>
             <select className="select" value={form.supplier_id} onChange={e => setForm(p => ({ ...p, supplier_id: e.target.value }))}>
               <option value="">— Pilih supplier —</option>
-              {Array.isArray(suppliers) && suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </FormField>
 
