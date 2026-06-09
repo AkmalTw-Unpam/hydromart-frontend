@@ -14,7 +14,7 @@ function fmtRp(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID') }
 function fmtDate(d) { return d ? new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' }
 
 function exportCSV(data, filename) {
-  if (!data.length) { toast.error('Tidak ada data untuk diekspor.'); return }
+  if (!data || !data.length) { toast.error('Tidak ada data untuk diekspor.'); return }
   const keys = Object.keys(data[0])
   const csv = [keys.join(','), ...data.map(row => keys.map(k => `"${row[k] ?? ''}"`).join(','))].join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })
@@ -34,9 +34,17 @@ export default function ReportsPage() {
 
   const [filters, setFilters] = useState({ date_from: '', date_to: '', category_id: '', supplier_id: '', search: '' })
 
+  // Ambil data kategori & supplier dengan pengaman objek cloud
   useEffect(() => {
-    categoriesApi.list().then(r => setCategories(r.data))
-    suppliersApi.list({ per_page: 999 }).then(r => setSuppliers(r.data.data))
+    categoriesApi.list().then(r => {
+      const resData = r.data
+      setCategories(resData?.data && Array.isArray(resData.data) ? resData.data : Array.isArray(resData) ? resData : [])
+    }).catch(err => console.error(err))
+
+    suppliersApi.list({ per_page: 999 }).then(r => {
+      const resData = r.data
+      setSuppliers(resData?.data && Array.isArray(resData.data) ? resData.data : Array.isArray(resData) ? resData : [])
+    }).catch(err => console.error(err))
   }, [])
 
   const load = async () => {
@@ -44,13 +52,20 @@ export default function ReportsPage() {
     try {
       if (tab === 'stock') {
         const { data: d } = await reportsApi.stock(filters)
-        setData(d.items); setSummary(d.summary)
+        // Pengaman ekstra jika items dibungkus objek pagination
+        const itemsData = d?.items?.data || d?.items || []
+        setData(Array.isArray(itemsData) ? itemsData : [])
+        setSummary(d?.summary || null)
       } else if (tab === 'incoming') {
         const { data: d } = await reportsApi.incoming(filters)
-        setData(d.transactions); setSummary(d.summary)
+        const incomingData = d?.transactions?.data || d?.transactions || []
+        setData(Array.isArray(incomingData) ? incomingData : [])
+        setSummary(d?.summary || null)
       } else {
         const { data: d } = await reportsApi.outgoing(filters)
-        setData(d.transactions); setSummary(d.summary)
+        const outgoingData = d?.transactions?.data || d?.transactions || []
+        setData(Array.isArray(outgoingData) ? outgoingData : [])
+        setSummary(d?.summary || null)
       }
     } catch (_) { toast.error('Gagal memuat laporan.') }
     setLoading(false)
@@ -59,7 +74,10 @@ export default function ReportsPage() {
   useEffect(() => { load() }, [tab])
 
   const handleExport = () => {
-    if (!data) return
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      toast.error('Tidak ada data untuk diekspor.')
+      return
+    }
     if (tab === 'stock') {
       exportCSV(data.map(i => ({ Kode: i.code, Nama: i.name, Kategori: i.category?.name, Stok: i.stock, 'Min Stok': i.min_stock, Satuan: i.unit, Lokasi: i.location, Harga: i.price, 'Nilai Total': i.stock * i.price })), `laporan_stok_${new Date().toISOString().split('T')[0]}.csv`)
     } else if (tab === 'incoming') {
@@ -116,7 +134,7 @@ export default function ReportsPage() {
             <label className="input-label">Kategori</label>
             <select className="select w-44" value={filters.category_id} onChange={e => setFilters(p => ({ ...p, category_id: e.target.value }))}>
               <option value="">Semua Kategori</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {Array.isArray(categories) && categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           {tab === 'incoming' && (
@@ -124,7 +142,7 @@ export default function ReportsPage() {
               <label className="input-label">Supplier</label>
               <select className="select w-44" value={filters.supplier_id} onChange={e => setFilters(p => ({ ...p, supplier_id: e.target.value }))}>
                 <option value="">Semua Supplier</option>
-                {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {Array.isArray(suppliers) && suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
           )}
@@ -157,7 +175,7 @@ export default function ReportsPage() {
           <div className="p-6 space-y-3">
             {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
           </div>
-        ) : !data ? (
+        ) : !data || !Array.isArray(data) ? (
           <div className="p-12 text-center text-sm text-slate-400">Klik "Tampilkan" untuk memuat laporan.</div>
         ) : (
           <div className="table-wrapper">
