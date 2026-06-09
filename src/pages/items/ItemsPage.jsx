@@ -20,7 +20,7 @@ export default function ItemsPage() {
   const [adjustmentReason, setAdjustmentReason] = useState('')
   const [saving, setSaving] = useState(false)
 
-  // Ambil data barang dari API Laragon
+  // Ambil data barang dari API (Diperbaiki agar aman dari object pagination cloud)
   const fetchItems = async () => {
     setLoading(true)
     try {
@@ -29,7 +29,15 @@ export default function ItemsPage() {
         category_id: selectedCategory || undefined
       }
       const { data } = await itemsApi.list(params)
-      setItems(data.data || data)
+      
+      // Mengamankan pembacaan data jika berbentuk objek pagination Laravel cloud maupun array biasa
+      if (data && data.data && Array.isArray(data.data)) {
+        setItems(data.data)
+      } else if (data && Array.isArray(data)) {
+        setItems(data)
+      } else {
+        setItems([])
+      }
     } catch (err) {
       toast.error('Gagal memuat data barang.')
     }
@@ -40,7 +48,14 @@ export default function ItemsPage() {
   const fetchCategories = async () => {
     try {
       const { data } = await categoriesApi.list()
-      setCategories(data.data || data)
+      
+      if (data && data.data && Array.isArray(data.data)) {
+        setCategories(data.data)
+      } else if (data && Array.isArray(data)) {
+        setCategories(data)
+      } else {
+        setCategories([])
+      }
     } catch (err) {
       console.error(err)
     }
@@ -59,7 +74,7 @@ export default function ItemsPage() {
     setIsAdjustOpen(true)
   }
 
-  // JALUR FIX AMAN: Mengirimkan field 'notes' sesuai permintaan Laravel
+  // Mengirimkan field 'notes' sesuai permintaan Laravel
   const handleAdjustSubmit = async (e) => {
     e.preventDefault()
     if (!adjustmentReason.trim()) {
@@ -71,7 +86,7 @@ export default function ItemsPage() {
     try {
       const payload = {
         stock: parseFloat(newStockValue),
-        notes: adjustmentReason // <-- Kunci perbaikan utama Laravel Anda!
+        notes: adjustmentReason
       }
 
       await itemsApi.adjust(selectedItem.id, payload)
@@ -110,7 +125,7 @@ export default function ItemsPage() {
             onChange={e => setSelectedCategory(e.target.value)}
           >
             <option value="">Semua Kategori</option>
-            {categories.map(c => (
+            {Array.isArray(categories) && categories.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
@@ -139,7 +154,7 @@ export default function ItemsPage() {
               <tr>
                 <td colSpan="7" className="text-center py-8 text-slate-400">Memuat data barang...</td>
               </tr>
-            ) : items.length === 0 ? (
+            ) : !Array.isArray(items) || items.length === 0 ? (
               <tr>
                 <td colSpan="7" className="text-center py-8 text-slate-400">Tidak ada data barang ditemukan.</td>
               </tr>
@@ -153,7 +168,7 @@ export default function ItemsPage() {
                   <td><span className="badge-blue">{item.category?.name || '-'}</span></td>
                   <td className="text-sm text-slate-600 dark:text-slate-300">{item.supplier?.name || '-'}</td>
                   <td className="font-bold text-slate-800 dark:text-slate-200">{item.stock} {item.unit || 'Pcs'}</td>
-                  <td>Rp {parseInt(item.price).toLocaleString('id-ID')}</td>
+                  <td>Rp {item.price ? parseInt(item.price).toLocaleString('id-ID') : 0}</td>
                   <td>
                     <span className={item.stock > item.min_stock ? 'badge-green' : 'badge-red'}>
                       {item.stock > item.min_stock ? 'Normal' : 'Stok Menipis'}
