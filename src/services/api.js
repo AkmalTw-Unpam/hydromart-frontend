@@ -1,10 +1,9 @@
 import axios from 'axios' 
 
 const api = axios.create({
-  // Menggunakan IP lokal agar kompatibilitas CORS di Laragon jauh lebih stabil
+  // URL Backend Production Railway kamu yang sudah aktif dan merespons 200 OK
   baseURL: 'https://hydromart-backend-production.up.railway.app/api',
   headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
-
 })
 
 // Pasang Token Otomatis ke Setiap Request
@@ -38,7 +37,7 @@ export const authApi = {
   changePassword: data => api.post('/change-password', data),
 }
 
-// ===== DASHBOARD API =====
+// ===== DASHBOARD API (Dipastikan menembak ke rute /dashboard sesuai log 200 OK) =====
 export const dashboardApi = {
   get: () => api.get('/dashboard'),
 }
@@ -78,7 +77,7 @@ export const transactionsApi = {
   outgoingCreate: data  => api.post('/outgoing', data),
 }
 
-// ===== NOTIFICATIONS API (Wajib Ada untuk Topbar.jsx) =====
+// ===== NOTIFICATIONS API =====
 export const notificationsApi = {
   list:        params => api.get('/notifications', { params }),
   unreadCount: ()   => api.get('/notifications/unread-count'),
