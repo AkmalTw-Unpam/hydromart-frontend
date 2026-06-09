@@ -33,13 +33,13 @@ function ItemForm({ form, setForm, categories, suppliers, errors }) {
         <FormField label="Kategori" required error={errors?.category_id}>
           <select className="select" value={form.category_id} onChange={e => setForm(p => ({ ...p, category_id: e.target.value }))}>
             <option value="">Pilih kategori</option>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {(Array.isArray(categories) ? categories : []).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </FormField>
         <FormField label="Supplier" error={errors?.supplier_id}>
           <select className="select" value={form.supplier_id} onChange={e => setForm(p => ({ ...p, supplier_id: e.target.value }))}>
             <option value="">Pilih supplier</option>
-            {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            {(Array.isArray(suppliers) ? suppliers : []).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </FormField>
         <FormField label="Satuan" required error={errors?.unit}>
@@ -113,8 +113,9 @@ export default function ItemsPage() {
     setLoading(true)
     try {
       const { data } = await itemsApi.list({ search, category_id: catFilter, status: statusFilter, page, per_page: 12 })
-      setItems(data.data)
-      setMeta(data.meta)
+      const rowsData = data?.data || data || []
+      setItems(Array.isArray(rowsData) ? rowsData : [])
+      setMeta(data?.meta || null)
     } catch (_) {}
     setLoading(false)
   }, [search, catFilter, statusFilter, page])
@@ -122,8 +123,15 @@ export default function ItemsPage() {
   useEffect(() => { fetchItems() }, [fetchItems])
 
   useEffect(() => {
-    categoriesApi.list().then(r => setCategories(r.data))
-    suppliersApi.list({ per_page: 999 }).then(r => setSuppliers(r.data.data))
+    categoriesApi.list().then(r => {
+      const resData = r?.data?.data || r?.data || []
+      setCategories(Array.isArray(resData) ? resData : [])
+    }).catch(() => {})
+
+    suppliersApi.list({ per_page: 999 }).then(r => {
+      const resData = r?.data?.data || r?.data || []
+      setSuppliers(Array.isArray(resData) ? resData : [])
+    }).catch(() => {})
   }, [])
 
   const openCreate = () => {
@@ -223,7 +231,7 @@ export default function ItemsPage() {
           </div>
           <select className="select w-44" value={catFilter} onChange={e => { setCatFilter(e.target.value); setPage(1) }}>
             <option value="">Semua Kategori</option>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {(Array.isArray(categories) ? categories : []).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <select className="select w-36" value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1) }}>
             <option value="">Semua Status</option>
@@ -235,7 +243,7 @@ export default function ItemsPage() {
       </div>
 
       {/* Table */}
-      {loading ? <TableSkeleton cols={7} rows={10} /> : (
+      {loading ? <TableSkeleton cols={9} rows={10} /> : (
         <div className="card overflow-hidden">
           <div className="table-wrapper">
             <table className="table">
@@ -247,7 +255,7 @@ export default function ItemsPage() {
                 </tr>
               </thead>
               <tbody>
-                {items.length === 0 ? (
+                {(!Array.isArray(items) || items.length === 0) ? (
                   <tr><td colSpan={9}>
                     <EmptyState icon={Package} title="Tidak ada barang" description="Tambahkan barang baru untuk memulai." action={<button onClick={openCreate} className="btn-primary btn-sm"><Plus size={14} /> Tambah Barang</button>} />
                   </td></tr>
