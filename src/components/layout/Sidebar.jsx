@@ -11,9 +11,9 @@ const NAV = [
   { to: '/items',     icon: Package,          label: 'Barang',    roles: null },
   { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk', roles: null },
   { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar', roles: null },
-  { to: '/suppliers', icon: Truck,            label: 'Supplier',  roles: ['admin','manager'] },
-  { to: '/categories',icon: Tag,              label: 'Kategori',  roles: ['admin','manager'] },
-  { to: '/reports',   icon: FileBarChart,     label: 'Laporan',   roles: ['admin','manager'] },
+  { to: '/suppliers', icon: Truck,            label: 'Supplier',  roles: ['admin', 'manager', 'administrator', 'Administrator'] },
+  { to: '/categories',icon: Tag,              label: 'Kategori',  roles: ['admin', 'manager', 'administrator', 'Administrator'] },
+  { to: '/reports',   icon: FileBarChart,     label: 'Laporan',   roles: ['admin', 'manager', 'administrator', 'Administrator'] },
 ]
 
 export default function Sidebar() {
