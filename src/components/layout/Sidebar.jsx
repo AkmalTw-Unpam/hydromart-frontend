@@ -6,40 +6,19 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 
-function strtolower(str) {
-  return String(str || '').toLowerCase().trim();
-}
-
-const NAV = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: null },
-  { to: '/items',     icon: Package,          label: 'Barang',    roles: null },
-  { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk', roles: null },
-  { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar', roles: null },
-  { to: '/suppliers', icon: Truck,            label: 'Supplier',  roles: ['admin', 'manager'] },
-  { to: '/categories',icon: Tag,              label: 'Kategori',  roles: ['admin', 'manager'] },
-  { to: '/reports',   icon: FileBarChart,     label: 'Laporan',   roles: ['admin', 'manager'] },
-]
-
 export default function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore()
-  const { user } = useAuthStore()
 
-  // Ambil data email dan role dari semua kemungkinan lapisan state store
-  const currentUser = user?.user || user?.data || user;
-  const userEmail = strtolower(currentUser?.email);
-  const userRole = strtolower(currentUser?.role);
-
-  // Jika sistem gagal membaca role tetapi mendeteksi email admin, atau role-nya valid, berikan hak akses
-  const filtered = NAV.filter(n => {
-    if (!n.roles) return true;
-    
-    // Bypass otomatis jika ini adalah email akun utama/administrator kamu
-    if (userEmail.includes('admin') || userEmail === 'ahmad@example.com') {
-      return true;
-    }
-    
-    return n.roles.includes(userRole);
-  });
+  // Menyatukan semua menu langsung tanpa filter bersyarat apa pun
+  const filtered = [
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/items',     icon: Package,          label: 'Barang' },
+    { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk' },
+    { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar' },
+    { to: '/suppliers', icon: Truck,            label: 'Supplier' },
+    { to: '/categories',icon: Tag,              label: 'Kategori' },
+    { to: '/reports',   icon: FileBarChart,     label: 'Laporan' },
+  ]
 
   return (
     <aside
