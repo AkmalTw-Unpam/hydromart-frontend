@@ -6,7 +6,6 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 
-// Fungsi pembantu untuk mengubah teks menjadi huruf kecil semua secara aman
 function strtolower(str) {
   return String(str || '').toLowerCase().trim();
 }
@@ -25,9 +24,22 @@ export default function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore()
   const { user } = useAuthStore()
 
-  // Mendukung pengecekan semua kemungkinan layer objek user store frontend kamu
-  const userRole = user?.role || user?.user?.role || user?.data?.role;
-  const filtered = NAV.filter(n => !n.roles || n.roles.includes(strtolower(userRole)));
+  // Ambil data email dan role dari semua kemungkinan lapisan state store
+  const currentUser = user?.user || user?.data || user;
+  const userEmail = strtolower(currentUser?.email);
+  const userRole = strtolower(currentUser?.role);
+
+  // Jika sistem gagal membaca role tetapi mendeteksi email admin, atau role-nya valid, berikan hak akses
+  const filtered = NAV.filter(n => {
+    if (!n.roles) return true;
+    
+    // Bypass otomatis jika ini adalah email akun utama/administrator kamu
+    if (userEmail.includes('admin') || userEmail === 'ahmad@example.com') {
+      return true;
+    }
+    
+    return n.roles.includes(userRole);
+  });
 
   return (
     <aside
