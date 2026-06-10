@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { itemsApi, categoriesApi, suppliersApi } from '../../services/api'
+import { categoriesApi, suppliersApi } from '../../services/api'
 import { Modal, PageHeader, StockBadge, TableSkeleton, Pagination, EmptyState, ConfirmDialog, FormField, SearchInput } from '../../components/ui'
 import { Plus, Pencil, Trash2, Package, SlidersHorizontal, RefreshCw, Image } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -17,7 +17,6 @@ const UNITS = ['Pcs', 'Set', 'Meter', 'Kg', 'Liter', 'Box', 'Roll', 'Lembar']
 function ItemForm({ form, setForm, categories, suppliers, errors, isEdit }) {
   const [preview, setPreview] = useState(null)
 
-  // Mengatur preview gambar lama jika sedang mode edit
   useEffect(() => {
     if (isEdit && form.avatar_url) {
       setPreview(form.avatar_url)
@@ -127,23 +126,24 @@ export default function ItemsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
 
-  // Mengambil data utama dari backend cloud
+  // 🌟 PERBAIKAN TOTAL: Menggunakan Direct Axios Call murni bypass file service
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
       const [resItems, resCats, resSups] = await Promise.all([
-        itemsApi.getAll(), 
+        axios.get('/api/items'), // Menembak endpoint langsung murni bypass itemsApi.getAll
         categoriesApi.getAll(),
         suppliersApi.getAll()
       ])
       
-      // Membuka bungkus data pagination agar array items terbaca normal oleh React
+      // Membuka bungkus data pagination array items dari Laravel
       const rawItems = resItems.data?.data || resItems.data || []
       setItems(rawItems)
       
       setCategories(resCats.data || [])
       setSuppliers(resSups.data || [])
     } catch (err) {
+      console.error(err)
       toast.error('Gagal mengambil data dari server cloud')
     } finally {
       setLoading(false)
@@ -199,7 +199,6 @@ export default function ItemsPage() {
       }
 
       if (selectedId) {
-        // Menggunakan teknik spoofing method agar bypass validasi file Laravel production
         dataToSend.append('_method', 'PUT')
         await axios.post(`/api/items/${selectedId}`, dataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
