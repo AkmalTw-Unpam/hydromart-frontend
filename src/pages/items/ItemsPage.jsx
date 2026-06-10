@@ -13,7 +13,7 @@ const INITIAL_FORM = {
 
 const UNITS = ['Pcs', 'Set', 'Meter', 'Kg', 'Liter', 'Box', 'Roll', 'Lembar']
 
-// ==================== COMPONENT FORM (CODE AWAL ASLI KAMU) ====================
+// ==================== COMPONENT FORM (SUDAH DIPERBAIKI) ====================
 function ItemForm({ form, setForm, categories, suppliers, errors, isEdit }) {
   const [preview, setPreview] = useState(null)
 
@@ -56,7 +56,8 @@ function ItemForm({ form, setForm, categories, suppliers, errors, isEdit }) {
         </FormField>
 
         <FormField label="Satuan" required error={errors?.unit}>
-          <select className="select" value={form.unit} onChange={e => setForm(p => ({ ...p, unit: u }))}>
+          {/* 🌟 AMAN: e.target.value sudah disinkronkan dengan benar */}
+          <select className="select" value={form.unit} onChange={e => setForm(p => ({ ...p, unit: e.target.value }))}>
             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
           </select>
         </FormField>
@@ -112,7 +113,7 @@ function ItemForm({ form, setForm, categories, suppliers, errors, isEdit }) {
   )
 }
 
-// ==================== MAIN RENDERING TABEL ASLI HYDROMART ====================
+// ==================== MAIN COMPONENT ====================
 export default function ItemsPage() {
   const [items, setItems] = useState([])
   const [categories, setCategories] = useState([])
@@ -124,7 +125,6 @@ export default function ItemsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
   
-  // State Filter & Pagination asli bawaanmu
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
@@ -133,7 +133,6 @@ export default function ItemsPage() {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
 
-  // Ambil Data pakai API Service Aslimu (Tetap Aman Pake Pagination)
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
@@ -180,7 +179,6 @@ export default function ItemsPage() {
     setModalOpen(true)
   }
 
-  // LOGIKA SIMPAN + SOLUSI SPOOFING UNTUK UPDATE FOTO BARANG
   const handleSubmit = async () => {
     try {
       setSubmitting(true)
@@ -201,7 +199,6 @@ export default function ItemsPage() {
       }
 
       if (selectedId) {
-        // Trik Jitu: Tambahkan _method PUT ke dalam FormData, lalu kirim via POST Axios murni
         dataToSend.append('_method', 'PUT')
         await axios.post(`/api/items/${selectedId}`, dataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -248,7 +245,6 @@ export default function ItemsPage() {
         </button>
       </div>
 
-      {/* FILTER SEARCH BAR ASLI */}
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-50/50 dark:bg-navy-800/20 p-4 rounded-xl border border-slate-100 dark:border-navy-800">
         <div className="w-full sm:w-72">
           <SearchInput value={search} onChange={setSearch} placeholder="Cari nama atau kode barang..." />
@@ -270,90 +266,81 @@ export default function ItemsPage() {
         </div>
       </div>
 
-      {/* TABEL CORE MANAJEMEN BARANG ASLI */}
-      {loading ? (
-        <TableSkeleton rows={5} cols={8} />
-      ) : items.length === 0 ? (
-        <EmptyState icon={Package} title="Tidak ada barang" description="Mulai tambahkan barang inventaris pertamamu ke sistem." />
-      ) : (
-        <div className="card overflow-hidden border border-slate-100 dark:border-navy-800 bg-white dark:bg-navy-900 rounded-xl shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-navy-800 bg-slate-50/50 dark:bg-navy-800/50 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                  <th className="py-4 px-4">Barang</th>
-                  <th className="py-4 px-4">Kategori</th>
-                  <th className="py-4 px-4">Supplier</th>
-                  <th className="py-4 px-4 text-right">Stok</th>
-                  <th className="py-4 px-4 text-right">Min. Stok</th>
-                  <th className="py-4 px-4 text-right">Harga</th>
-                  <th className="py-4 px-4">Status</th>
-                  <th className="py-4 px-4">Lokasi</th>
-                  <th className="py-4 px-4 text-center">Aksi</th>
+      <div className="card overflow-hidden border border-slate-100 dark:border-navy-800 bg-white dark:bg-navy-900 rounded-xl shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-100 dark:border-navy-800 bg-slate-50/50 dark:bg-navy-800/50 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                <th className="py-4 px-4">Barang</th>
+                <th className="py-4 px-4">Kategori</th>
+                <th className="py-4 px-4">Supplier</th>
+                <th className="py-4 px-4 text-right">Stok</th>
+                <th className="py-4 px-4 text-right">Min. Stok</th>
+                <th className="py-4 px-4 text-right">Harga</th>
+                <th className="py-4 px-4">Status</th>
+                <th className="py-4 px-4">Lokasi</th>
+                <th className="py-4 px-4 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-navy-800 text-sm">
+              {items.map((item) => (
+                <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-navy-800/30 transition-colors">
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-slate-50 dark:bg-navy-800 overflow-hidden flex items-center justify-center border border-slate-100 dark:border-navy-700 flex-shrink-0">
+                        {item.avatar_url || item.image_url ? (
+                          <img src={item.avatar_url || item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{item.name.substring(0, 2)}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-slate-700 dark:text-slate-200 truncate">{item.name}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5">{item.code}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-400">
+                      {item.category?.name || '—'}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-slate-500 dark:text-slate-400 max-w-[140px] truncate">{item.supplier?.name || '—'}</td>
+                  <td className="py-4 px-4 text-right font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                    <div className="flex flex-col items-end">
+                      <span className={clsx(parseFloat(item.stock) <= 0 ? 'text-red-500' : parseFloat(item.stock) <= parseFloat(item.min_stock) ? 'text-amber-500' : 'text-slate-700 dark:text-slate-200')}>{parseFloat(item.stock).toLocaleString('id-ID')}</span>
+                      <span className="text-[10px] text-slate-400 font-normal">{item.unit}</span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4 text-right text-slate-500 dark:text-slate-400 whitespace-nowrap">{parseFloat(item.min_stock).toLocaleString('id-ID')}</td>
+                  <td className="py-4 px-4 text-right font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap">Rp {parseFloat(item.price).toLocaleString('id-ID')}</td>
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <StockBadge stock={parseFloat(item.stock)} minStock={parseFloat(item.min_stock)} />
+                  </td>
+                  <td className="py-4 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">{item.location || '—'}</td>
+                  <td className="py-4 px-4 whitespace-nowrap text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <button onClick={() => handleOpenEdit(item)} className="p-1.5 hover:bg-slate-100 dark:hover:bg-navy-800 text-slate-500 hover:text-primary-500 rounded-md">
+                        <Pencil size={15} />
+                      </button>
+                      <button onClick={() => { setDeleteId(item.id); setConfirmDeleteOpen(true); }} className="p-1.5 hover:bg-slate-100 dark:hover:bg-navy-800 text-slate-500 hover:text-red-500 rounded-md">
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-navy-800 text-sm">
-                {items.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-navy-800/30 transition-colors">
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-slate-50 dark:bg-navy-800 overflow-hidden flex items-center justify-center border border-slate-100 dark:border-navy-700 flex-shrink-0">
-                          {item.avatar_url || item.image_url ? (
-                            <img src={item.avatar_url || item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{item.name.substring(0, 2)}</span>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-slate-700 dark:text-slate-200 truncate">{item.name}</p>
-                          <p className="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5">{item.code}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-400">
-                        {item.category?.name || '—'}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-slate-500 dark:text-slate-400 max-w-[140px] truncate">{item.supplier?.name || '—'}</td>
-                    <td className="py-4 px-4 text-right font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
-                      <div className="flex flex-col items-end">
-                        <span className={clsx(parseFloat(item.stock) <= 0 ? 'text-red-500' : parseFloat(item.stock) <= parseFloat(item.min_stock) ? 'text-amber-500' : 'text-slate-700 dark:text-slate-200')}>{parseFloat(item.stock).toLocaleString('id-ID')}</span>
-                        <span className="text-[10px] text-slate-400 font-normal">{item.unit}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4 text-right text-slate-500 dark:text-slate-400 whitespace-nowrap">{parseFloat(item.min_stock).toLocaleString('id-ID')}</td>
-                    <td className="py-4 px-4 text-right font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap">Rp {parseFloat(item.price).toLocaleString('id-ID')}</td>
-                    <td className="py-4 px-4 whitespace-nowrap">
-                      <StockBadge stock={parseFloat(item.stock)} minStock={parseFloat(item.min_stock)} />
-                    </td>
-                    <td className="py-4 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">{item.location || '—'}</td>
-                    <td className="py-4 px-4 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <button onClick={() => handleOpenEdit(item)} className="p-1.5 hover:bg-slate-100 dark:hover:bg-navy-800 text-slate-500 hover:text-primary-500 rounded-md">
-                          <Pencil size={15} />
-                        </button>
-                        <button onClick={() => { setDeleteId(item.id); setConfirmDeleteOpen(true); }} className="p-1.5 hover:bg-slate-100 dark:hover:bg-navy-800 text-slate-500 hover:text-red-500 rounded-md">
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* CONTROL PAGINATION INDONESIA */}
-          {meta && (
-            <div className="p-4 border-t dark:border-navy-800">
-              <Pagination current={page} total={meta.last_page || meta.last_page_at || 1} onPageChange={setPage} />
-            </div>
-          )}
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
+        
+        {meta && (
+          <div className="p-4 border-t dark:border-navy-800">
+            <Pagination current={page} total={meta.last_page || meta.last_page_at || 1} onPageChange={setPage} />
+          </div>
+        )}
+      </div>
 
-      {/* FORM MODAL TAMBAH & EDIT */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={selectedId ? 'Edit Barang' : 'Tambah Barang'}>
         <ItemForm form={form} setForm={setForm} categories={categories} suppliers={suppliers} errors={errors} isEdit={!!selectedId} />
         <div className="flex justify-end gap-2 mt-6 border-t pt-4 dark:border-navy-700">
@@ -364,7 +351,6 @@ export default function ItemsPage() {
         </div>
       </Modal>
 
-      {/* DIALOG KONFIRMASI HAPUS BARANG */}
       <ConfirmDialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)} onConfirm={handleDelete} title="Hapus Barang" message="Apakah Anda yakin ingin menghapus barang ini? Tindakan ini tidak dapat dibatalkan." type="danger" />
     </div>
   )
