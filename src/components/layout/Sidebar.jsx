@@ -7,21 +7,23 @@ import {
 import clsx from 'clsx'
 
 const NAV = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/items',     icon: Package,          label: 'Barang' },
-  { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk' },
-  { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar' },
-  { to: '/suppliers', icon: Truck,            label: 'Supplier' },
-  { to: '/categories',icon: Tag,              label: 'Kategori' },
-  { to: '/reports',   icon: FileBarChart,     label: 'Laporan' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: null },
+  { to: '/items',     icon: Package,          label: 'Barang',    roles: null },
+  { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk', roles: null },
+  { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar', roles: null },
+  
+  // Mengunci hak akses menu khusus untuk role 'admin' dan 'manager' saja
+  { to: '/suppliers', icon: Truck,            label: 'Supplier',  roles: ['admin', 'manager'] },
+  { to: '/categories',icon: Tag,              label: 'Kategori',  roles: ['admin', 'manager'] },
+  { to: '/reports',   icon: FileBarChart,     label: 'Laporan',   roles: ['admin', 'manager'] },
 ]
 
 export default function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore()
   const { user } = useAuthStore()
 
-  // Memaksa semua menu lolos tanpa mempedulikan pengecekan data role dari backend
-  const filtered = NAV
+  // Memfilter menu secara ketat berdasarkan hak akses user login
+  const filtered = NAV.filter(n => !n.roles || n.roles.includes(user?.role))
 
   return (
     <aside
