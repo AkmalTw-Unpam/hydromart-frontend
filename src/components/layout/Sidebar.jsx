@@ -6,13 +6,16 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 
+// Fungsi pembantu untuk mengubah teks menjadi huruf kecil semua secara aman
+function strtolower(str) {
+  return String(str || '').toLowerCase().trim();
+}
+
 const NAV = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: null },
   { to: '/items',     icon: Package,          label: 'Barang',    roles: null },
   { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk', roles: null },
   { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar', roles: null },
-  
-  // Mengunci hak akses menu khusus untuk role 'admin' dan 'manager' saja
   { to: '/suppliers', icon: Truck,            label: 'Supplier',  roles: ['admin', 'manager'] },
   { to: '/categories',icon: Tag,              label: 'Kategori',  roles: ['admin', 'manager'] },
   { to: '/reports',   icon: FileBarChart,     label: 'Laporan',   roles: ['admin', 'manager'] },
@@ -22,8 +25,9 @@ export default function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore()
   const { user } = useAuthStore()
 
-  // Memfilter menu secara ketat berdasarkan hak akses user login
-  const filtered = NAV.filter(n => !n.roles || n.roles.includes(user?.role))
+  // Mendukung pengecekan semua kemungkinan layer objek user store frontend kamu
+  const userRole = user?.role || user?.user?.role || user?.data?.role;
+  const filtered = NAV.filter(n => !n.roles || n.roles.includes(strtolower(userRole)));
 
   return (
     <aside
