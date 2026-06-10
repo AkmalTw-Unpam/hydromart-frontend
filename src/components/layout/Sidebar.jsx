@@ -7,20 +7,21 @@ import {
 import clsx from 'clsx'
 
 const NAV = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: null },
-  { to: '/items',     icon: Package,          label: 'Barang',    roles: null },
-  { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk', roles: null },
-  { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar', roles: null },
-  { to: '/suppliers', icon: Truck,            label: 'Supplier',  roles: ['admin', 'manager', 'administrator', 'Administrator'] },
-  { to: '/categories',icon: Tag,              label: 'Kategori',  roles: ['admin', 'manager', 'administrator', 'Administrator'] },
-  { to: '/reports',   icon: FileBarChart,     label: 'Laporan',   roles: ['admin', 'manager', 'administrator', 'Administrator'] },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/items',     icon: Package,          label: 'Barang' },
+  { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk' },
+  { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar' },
+  { to: '/suppliers', icon: Truck,            label: 'Supplier' },
+  { to: '/categories',icon: Tag,              label: 'Kategori' },
+  { to: '/reports',   icon: FileBarChart,     label: 'Laporan' },
 ]
 
 export default function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore()
   const { user } = useAuthStore()
 
-  const filtered = NAV.filter(n => !n.roles || n.roles.includes(user?.role))
+  // Memaksa semua menu lolos tanpa mempedulikan pengecekan data role dari backend
+  const filtered = NAV
 
   return (
     <aside
