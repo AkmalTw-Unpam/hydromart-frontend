@@ -6,19 +6,39 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 
+// Fungsi pembantu untuk membersihkan string teks
+function strtolower(str) {
+  return String(str || '').toLowerCase().trim();
+}
+
+const NAV = [
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: null },
+  { to: '/items',     icon: Package,          label: 'Barang',    roles: null },
+  { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk', roles: null },
+  { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar', roles: null },
+  
+  // Hak akses menu utama dikunci untuk admin, administrator, dan manager
+  { to: '/suppliers', icon: Truck,            label: 'Supplier',  roles: ['admin', 'manager', 'administrator'] },
+  { to: '/categories',icon: Tag,              label: 'Kategori',  roles: ['admin', 'manager', 'administrator'] },
+  { to: '/reports',   icon: FileBarChart,     label: 'Laporan',   roles: ['admin', 'manager', 'administrator'] },
+]
+
 export default function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore()
+  const { user } = useAuthStore()
 
-  // Menyatukan semua menu langsung tanpa filter bersyarat apa pun
-  const filtered = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/items',     icon: Package,          label: 'Barang' },
-    { to: '/incoming',  icon: ArrowDownToLine,  label: 'Barang Masuk' },
-    { to: '/outgoing',  icon: ArrowUpFromLine,  label: 'Barang Keluar' },
-    { to: '/suppliers', icon: Truck,            label: 'Supplier' },
-    { to: '/categories',icon: Tag,              label: 'Kategori' },
-    { to: '/reports',   icon: FileBarChart,     label: 'Laporan' },
-  ]
+  // Ambil data user dari semua kemungkinan layer objek store frontend
+  const currentUser = user?.user || user?.data || user;
+  
+  // Ambil data 'role' DAN 'role_label' sebagai cadangan autentikasi
+  const userRole = strtolower(currentUser?.role);
+  const userRoleLabel = strtolower(currentUser?.role_label);
+
+  // Filter menu: Loloskan jika user memiliki salah satu kriteria role yang cocok
+  const filtered = NAV.filter(n => {
+    if (!n.roles) return true;
+    return n.roles.includes(userRole) || n.roles.includes(userRoleLabel);
+  });
 
   return (
     <aside
