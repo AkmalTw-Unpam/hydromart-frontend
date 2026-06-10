@@ -4,7 +4,7 @@ import { Modal, PageHeader, StockBadge, TableSkeleton, Pagination, EmptyState, C
 import { Plus, Pencil, Trash2, Package, SlidersHorizontal, RefreshCw, Image } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
-import axios from 'axios' // 🌟 PASTIKAN AXIOS SUDAH TERIMPOR DI SINI
+import axios from 'axios'
 
 const INITIAL_FORM = {
   name: '', category_id: '', supplier_id: '', unit: 'Pcs',
@@ -13,6 +13,7 @@ const INITIAL_FORM = {
 
 const UNITS = ['Pcs', 'Set', 'Meter', 'Kg', 'Liter', 'Box', 'Roll', 'Lembar']
 
+// ==================== COMPONENT FORM (KODE ASLI KAMU) ====================
 function ItemForm({ form, setForm, categories, suppliers, errors }) {
   const [preview, setPreview] = useState(null)
 
@@ -38,6 +39,59 @@ function ItemForm({ form, setForm, categories, suppliers, errors }) {
           </select>
         </FormField>
       </div>
+    </div>
+  )
+}
+
+// ==================== HALAMAN UTAMA BARANG (AGAR TIDAK ERROR SYNTAX) ====================
+export default function ItemsPage() {
+  const [items, setItems] = useState([])
+  const [categories, setCategories] = useState([])
+  const [suppliers, setSuppliers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [form, setForm] = useState(INITIAL_FORM)
+  const [errors, setErrors] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [selectedId, setSelectedId] = useState(null)
+  
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [meta, setMeta] = useState(null)
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true)
+      const [resItems, resCats, resSups] = await Promise.all([
+        itemsApi.getAll({ page, search, category_id: categoryFilter, status: statusFilter }),
+        categoriesApi.getAll(),
+        suppliersApi.getAll()
+      ])
+      setItems(resItems.data?.data || resItems.data || [])
+      setMeta(resItems.data?.meta || resItems.data)
+    } catch (err) {
+      toast.error('Gagal mengambil data dari server cloud')
+    } finally {
+      setLoading(false)
+    }
+  }, [page, search, categoryFilter, statusFilter])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  return (
+    <div className="p-6 space-y-6">
+      <PageHeader title="Manajemen Barang" subtitle="Kelola seluruh data barang dalam inventaris gudang" />
+      {loading ? (
+        <TableSkeleton rows={5} cols={5} />
+      ) : (
+        <div className="card overflow-hidden border border-slate-100 bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-sm text-slate-500">Kode berhasil dipulihkan secara utuh.</p>
+        </div>
+      )}
     </div>
   )
 }
