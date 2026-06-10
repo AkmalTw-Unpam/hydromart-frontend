@@ -115,7 +115,7 @@ function ItemForm({ form, setForm, categories, suppliers, errors, isEdit }) {
   )
 }
 
-// ==================== MAIN COMPONENT: INTERFACE HALAMAN BARANG ====================
+// ==================== MAIN COMPONENT ====================
 export default function ItemsPage() {
   const [items, setItems] = useState([])
   const [categories, setCategories] = useState([])
@@ -132,11 +132,15 @@ export default function ItemsPage() {
     try {
       setLoading(true)
       const [resItems, resCats, resSups] = await Promise.all([
-        itemsApi.getAll(), // atau endpoint custom paginasimu
+        itemsApi.getAll(), 
         categoriesApi.getAll(),
         suppliersApi.getAll()
       ])
-      setItems(resItems.data?.data || resItems.data || [])
+      
+      // Membuka bungkus data pagination agar array items terbaca normal oleh React
+      const rawItems = resItems.data?.data || resItems.data || []
+      setItems(rawItems)
+      
       setCategories(resCats.data || [])
       setSuppliers(resSups.data || [])
     } catch (err) {
@@ -169,19 +173,17 @@ export default function ItemsPage() {
       location: item.location,
       description: item.description,
       avatar_url: item.avatar_url || item.image_url,
-      image: null // file baru kosong sebelum user milih file baru
+      image: null
     })
     setErrors(null)
     setModalOpen(true)
   }
 
-  // 🌟 JANTUNG UTAMA: PROSES SIMPAN / UPDATE BARANG DENGAN SPOOFING METHOD
   const handleSubmit = async () => {
     try {
       setSubmitting(true)
       setErrors(null)
 
-      // Bungkus data ke dalam objek FormData browser
       const dataToSend = new FormData()
       dataToSend.append('name', form.name || '')
       dataToSend.append('category_id', form.category_id || '')
@@ -192,33 +194,27 @@ export default function ItemsPage() {
       dataToSend.append('location', form.location || '')
       dataToSend.append('description', form.description || '')
 
-      // Masukkan gambar jika ada file baru yang dipilih
       if (form.image) {
         dataToSend.append('image', form.image)
       }
 
-      let response;
-
       if (selectedId) {
-        // 🌟 JALUR EDIT: Tambahkan trik spoofing _method agar dibaca PUT oleh Laravel
+        // Menggunakan teknik spoofing method agar bypass validasi file Laravel production
         dataToSend.append('_method', 'PUT')
-        
-        // PENTING: Mengirimnya wajib memakai POST request murni Axios
-        response = await axios.post(`/api/items/${selectedId}`, dataToSend, {
+        await axios.post(`/api/items/${selectedId}`, dataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         toast.success('Barang berhasil diperbarui')
       } else {
-        // JALUR TAMBAH BARANG BARU
         dataToSend.append('stock', form.stock || 0)
-        response = await axios.post('/api/items', dataToSend, {
+        await axios.post('/api/items', dataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         toast.success('Barang berhasil ditambahkan')
       }
 
       setModalOpen(false)
-      fetchData() // Refresh data tabel biar gambar langsung muncul
+      fetchData()
     } catch (err) {
       if (err.response?.status === 422) {
         setErrors(err.response.data.errors)
@@ -239,38 +235,68 @@ export default function ItemsPage() {
         </button>
       </div>
 
-      {/* Tampilan Konten Utama (Tabel / Skeleton Loader) */}
       {loading ? (
         <TableSkeleton rows={5} cols={6} />
       ) : items.length === 0 ? (
         <EmptyState icon={Package} title="Tidak ada barang" description="Mulai tambahkan barang inventaris pertamamu ke sistem." />
       ) : (
-        <div className="card overflow-x-auto">
-          {/* Taruh layout rendering tabel barang aslimu di sini... */}
-          <p className="text-xs p-4 text-slate-400">Data termuat: {items.length} item. Klik ikon pensil untuk uji coba upload gambar baru.</p>
-          
-          {/* Pembuktian: tombol pemicu dummy edit cepat untuk testing */}
-          <div className="p-4 space-y-2">
-            {items.map(item => (
-              <div key={item.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-navy-800 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-white overflow-hidden flex items-center justify-center border">
-                    {item.avatar_url || item.image_url ? (
-                      <img src={item.avatar_url || item.image_url} alt="img" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-bold uppercase">{item.name.substring(0,2)}</span>
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold">{item.name}</h4>
-                    <p className="text-xs text-slate-400">{item.code} • Stok: {item.stock}</p>
-                  </div>
-                </div>
-                <button onClick={() => handleOpenEdit(item)} className="p-2 hover:bg-slate-200 dark:hover:bg-navy-700 rounded-lg text-primary-500">
-                  <Pencil size={16} />
-                </button>
-              </div>
-            ))}
+        <div className="card overflow-hidden border border-slate-100 dark:border-navy-800 bg-white dark:bg-navy-900 rounded-xl shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 dark:border-navy-800 bg-slate-50/50 dark:bg-navy-800/50 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  <th className="py-4 px-4">Barang</th>
+                  <th className="py-4 px-4">Kategori</th>
+                  <th className="py-4 px-4">Supplier</th>
+                  <th className="py-4 px-4 text-right">Stok</th>
+                  <th className="py-4 px-4 text-right">Min. Stok</th>
+                  <th className="py-4 px-4 text-right">Harga</th>
+                  <th className="py-4 px-4">Lokasi</th>
+                  <th className="py-4 px-4 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-navy-800 text-sm">
+                {items.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-navy-800/30 transition-colors">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-slate-50 dark:bg-navy-800 overflow-hidden flex items-center justify-center border border-slate-100 dark:border-navy-700 flex-shrink-0">
+                          {item.avatar_url || item.image_url ? (
+                            <img src={item.avatar_url || item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{item.name.substring(0, 2)}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-700 dark:text-slate-200 truncate">{item.name}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5">{item.code}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-navy-700/50">
+                        {item.category?.name || 'Tanpa Kategori'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-slate-500 dark:text-slate-400 truncate max-w-[150px]">{item.supplier?.name || '—'}</td>
+                    <td className="py-4 px-4 text-right font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                      <div className="flex flex-col items-end">
+                        <span>{parseFloat(item.stock).toLocaleString('id-ID')}</span>
+                        <span className="text-[10px] text-slate-400 font-normal">{item.unit}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-right text-slate-500 dark:text-slate-400 whitespace-nowrap">{parseFloat(item.min_stock).toLocaleString('id-ID')}</td>
+                    <td className="py-4 px-4 text-right font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap">Rp {parseFloat(item.price).toLocaleString('id-ID')}</td>
+                    <td className="py-4 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">{item.location || '—'}</td>
+                    <td className="py-4 px-4 whitespace-nowrap text-center">
+                      <button onClick={() => handleOpenEdit(item)} className="p-2 hover:bg-slate-100 dark:hover:bg-navy-800 text-slate-500 hover:text-primary-500 dark:text-slate-400 dark:hover:text-primary-400 rounded-lg transition-colors">
+                        <Pencil size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
