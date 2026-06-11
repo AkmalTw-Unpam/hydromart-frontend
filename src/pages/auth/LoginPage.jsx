@@ -5,7 +5,8 @@ import { Eye, EyeOff, Droplets, ArrowRight, Lock, Mail } from 'lucide-react'
 
 export default function LoginPage() {
   const { login, isLoading } = useAuthStore()
-  const [form, setForm] = useState({ email: 'admin@hydromart.id', password: 'password' })
+  // 🌟 SEKARANG FORM KOSONG: Biar masuk akal wajib diketik manual
+  const [form, setForm] = useState({ email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [errors, setErrors] = useState({})
 
@@ -60,7 +61,13 @@ export default function LoginPage() {
 
           {/* Password */}
           <div>
-            <label className="input-label">Password</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="input-label mb-0">Password</label>
+              {/* 🌟 FITUR: Lupa Password */}
+              <a href="/forgot-password" onClick={(e) => { e.preventDefault(); toast('Fitur Lupa Password sedang dikembangkan', { icon: '⚙️' }) }} className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400">
+                Lupa password?
+              </a>
+            </div>
             <div className="relative">
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -96,6 +103,14 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        {/* 🌟 FITUR: Tambah Akun Baru (Register Link) */}
+        <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6">
+          Belum punya akun?{' '}
+          <a href="/register" onClick={(e) => { e.preventDefault(); toast('Fitur Registrasi Akun baru sedang dikembangkan', { icon: '⚙️' }) }} className="font-semibold text-primary-500 hover:text-primary-600 dark:text-primary-400">
+            Daftar Akun Baru
+          </a>
+        </p>
 
         <p className="text-center text-xs text-slate-400 dark:text-slate-600 mt-8">
           © 2026 PT. Hydromart Utama Indonesia. All rights reserved.
