@@ -48,6 +48,7 @@ export default function App() {
       />
       <Routes>
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard"   element={<DashboardPage />} />
@@ -58,7 +59,6 @@ export default function App() {
           <Route path="categories"  element={<CategoriesPage />} />
           <Route path="reports"     element={<ReportsPage />} />
           <Route path="profile"     element={<ProfilePage />} />
-          <Route path="/register" element={<RegisterPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
