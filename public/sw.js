@@ -1,6 +1,7 @@
 const CACHE_NAME = 'hydromart-v1';
-const urlsToCache = ['/', '/index.html'];
+const urlsToCache = ['/', '/index.html', '/hui-logo.png'];
 
+// Install Service Worker
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -9,6 +10,7 @@ self.addEventListener('install', event => {
   );
 });
 
+// Fetch Resource
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(response => {
