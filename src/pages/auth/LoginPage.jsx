@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuthStore } from '../../store'
 import toast from 'react-hot-toast'
-import { Eye, EyeOff, Droplets, ArrowRight, Lock, Mail } from 'lucide-react'
+import { Eye, EyeOff, Droplets, ArrowRight, Lock, Mail, Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function LoginPage() {
@@ -10,6 +10,33 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [errors, setErrors] = useState({})
+
+  // 🌟 LOGIKA PWA: State untuk menangkap event install aplikasi
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [isInstallable, setIsInstallable] = useState(false)
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setIsInstallable(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+
+    return () => {
+      window.removeEventListener('beforebeforeinstallprompt', handleBeforeInstallPrompt)
+    }
+  }, [])
+
+  const handleDownloadApp = async () => {
+    if (!deferredPrompt) return
+    deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    console.log(`User response to the install prompt: ${outcome}`)
+    setDeferredPrompt(null)
+    setIsInstallable(false)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -64,8 +91,8 @@ export default function LoginPage() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="input-label mb-0">Password</label>
-              {/* 🌟 FITUR: Lupa Password */}
-              <Link to="/forgot-password" className={(e) => { e.preventDefault(); toast('Fitur Lupa Password sedang dikembangkan', { icon: '⚙️' }) }} className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400">
+              {/* 🌟 PERBAIKAN FITUR: Lupa Password (Sudah dibersihkan dari fungsi toast penghalang) */}
+              <Link to="/forgot-password" className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400">
                 Lupa password?
               </Link>
             </div>
@@ -95,17 +122,28 @@ export default function LoginPage() {
             className="btn-primary btn-lg w-full mt-2"
           >
             {isLoading ? (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 justify-center">
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Memproses...
               </span>
             ) : (
-              <span className="flex items-center gap-2">Masuk ke Sistem <ArrowRight size={16} /></span>
+              <span className="flex items-center gap-2 justify-center">Masuk ke Sistem <ArrowRight size={16} /></span>
             )}
           </button>
+
+          {/* 🌟 TOMBOL BARU: Download Aplikasi PWA (Hanya muncul jika diakses via browser & belum terinstal) */}
+          {isInstallable && (
+            <button
+              type="button"
+              onClick={handleDownloadApp}
+              className="w-full mt-2 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-navy-800 dark:hover:bg-navy-700 text-slate-700 dark:text-cyan-400 border border-slate-200 dark:border-cyan-500/20 text-sm font-medium rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm"
+            >
+              <Download size={16} /> Download Aplikasi Hydromart
+            </button>
+          )}
         </form>
 
-          <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6">
+        <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6">
           Belum punya akun?{' '}
           <Link to="/register" className="font-semibold text-primary-500 hover:text-primary-600 dark:text-primary-400">
             Daftar Akun Baru
