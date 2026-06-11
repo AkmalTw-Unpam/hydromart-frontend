@@ -104,11 +104,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* 🌟 FITUR: Tambah Akun Baru (Register Link) */}
-        <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6">
-          Belum punya akun?{' '}
-          <a href="/register" onClick={(e) => { e.preventDefault(); toast('Fitur Registrasi Akun baru sedang dikembangkan', { icon: '⚙️' }) }} className="font-semibold text-primary-500 hover:text-primary-600 dark:text-primary-400">
-            Daftar Akun Baru
+       {/* KODE BARU YANG SUDAH TERBUKA AKSESNYA */}
+       <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6">
+         Belum punya akun?{' '}
+          <a href="/register" className="font-semibold text-primary-500 hover:text-primary-600 dark:text-primary-400">
+        Daftar Akun Baru
           </a>
         </p>
 
