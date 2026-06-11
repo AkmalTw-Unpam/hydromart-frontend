@@ -14,6 +14,7 @@ import CategoriesPage from './pages/categories/CategoriesPage'
 import ReportsPage from './pages/reports/ReportsPage'
 import ProfilePage from './pages/auth/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
+import RegisterPage from './pages/auth/RegisterPage' // 🌟 Arahkan ke folder auth
 
 function PrivateRoute({ children, roles }) {
   const { isAuthenticated, user } = useAuthStore()
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="categories"  element={<CategoriesPage />} />
           <Route path="reports"     element={<ReportsPage />} />
           <Route path="profile"     element={<ProfilePage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
