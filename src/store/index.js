@@ -41,6 +41,20 @@ export const useAuthStore = create(
         }
       },
 
+      // 🌟 FUNGSI BARU: FORGOT PASSWORD ACTION
+      forgotPassword: async (formData) => {
+        try {
+          const { data } = await authApi.forgotPassword(formData)
+          return { success: true, message: data.message || 'Reset password berhasil!' }
+        } catch (err) {
+          return { 
+            success: false, 
+            message: err.response?.data?.message || 'Gagal mereset password.',
+            errors: err.response?.data?.errors 
+          }
+        }
+      },
+
       logout: async () => {
         try { await authApi.logout() } catch (_) {}
         localStorage.removeItem('hm_token')

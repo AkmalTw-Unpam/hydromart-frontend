@@ -14,7 +14,8 @@ import CategoriesPage from './pages/categories/CategoriesPage'
 import ReportsPage from './pages/reports/ReportsPage'
 import ProfilePage from './pages/auth/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
-import RegisterPage from './pages/auth/RegisterPage' // 🌟 Arahkan ke folder auth
+import RegisterPage from './pages/auth/RegisterPage' 
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 
 function PrivateRoute({ children, roles }) {
   const { isAuthenticated, user } = useAuthStore()
@@ -49,7 +50,9 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
         <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard"   element={<DashboardPage />} />
           <Route path="items"       element={<ItemsPage />} />
