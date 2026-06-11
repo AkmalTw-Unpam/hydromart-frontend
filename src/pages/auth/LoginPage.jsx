@@ -105,11 +105,10 @@ export default function LoginPage() {
           </button>
         </form>
 
-       {/* KODE BARU YANG SUDAH TERBUKA AKSESNYA */}
-       <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6">
-         Belum punya akun?{' '}
-          <Link href="/register" className="font-semibold text-primary-500 hover:text-primary-600 dark:text-primary-400">
-        Daftar Akun Baru
+          <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6">
+          Belum punya akun?{' '}
+          <Link to="/register" className="font-semibold text-primary-500 hover:text-primary-600 dark:text-primary-400">
+            Daftar Akun Baru
           </Link>
         </p>
 
