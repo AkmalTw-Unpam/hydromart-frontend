@@ -27,6 +27,20 @@ export const useAuthStore = create(
         }
       },
 
+      // 🌟 FUNGSI BARU: MENYAMBUNGKAN REGISTRASI KE API BACKEND LARAVEL
+      register: async (formData) => {
+        try {
+          const { data } = await authApi.register(formData)
+          return { success: true, message: data.message || 'Registrasi akun berhasil!' }
+        } catch (err) {
+          return { 
+            success: false, 
+            message: err.response?.data?.message || 'Registrasi akun gagal.',
+            errors: err.response?.data?.errors 
+          }
+        }
+      },
+
       logout: async () => {
         try { await authApi.logout() } catch (_) {}
         localStorage.removeItem('hm_token')

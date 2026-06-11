@@ -31,6 +31,7 @@ export default api
 // ===== AUTH API =====
 export const authApi = {
   login:          data => api.post('/login', data),
+  register:       data => api.post('/register', data), // 🌟 SEKARANG SUDAH DITAMBAHKAN AMAN DI SINI
   logout:         ()   => api.post('/logout'),
   me:             ()   => api.get('/me'),
   updateProfile:  data => api.post('/profile', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
