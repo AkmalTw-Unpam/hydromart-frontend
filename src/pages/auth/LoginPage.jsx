@@ -65,7 +65,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-between mb-1">
               <label className="input-label mb-0">Password</label>
               {/* 🌟 FITUR: Lupa Password */}
-              <Link href="/forgot-password" className={(e) => { e.preventDefault(); toast('Fitur Lupa Password sedang dikembangkan', { icon: '⚙️' }) }} className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400">
+              <Link to="/forgot-password" className={(e) => { e.preventDefault(); toast('Fitur Lupa Password sedang dikembangkan', { icon: '⚙️' }) }} className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400">
                 Lupa password?
               </Link>
             </div>
