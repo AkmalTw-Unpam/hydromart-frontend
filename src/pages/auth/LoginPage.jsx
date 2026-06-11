@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuthStore } from '../../store'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Droplets, ArrowRight, Lock, Mail } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function LoginPage() {
   const { login, isLoading } = useAuthStore()
@@ -107,9 +108,9 @@ export default function LoginPage() {
        {/* KODE BARU YANG SUDAH TERBUKA AKSESNYA */}
        <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6">
          Belum punya akun?{' '}
-          <a href="/register" className="font-semibold text-primary-500 hover:text-primary-600 dark:text-primary-400">
+          <Link href="/register" className="font-semibold text-primary-500 hover:text-primary-600 dark:text-primary-400">
         Daftar Akun Baru
-          </a>
+          </Link>
         </p>
 
         <p className="text-center text-xs text-slate-400 dark:text-slate-600 mt-8">
