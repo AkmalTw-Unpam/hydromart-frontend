@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore, useUIStore } from './store'
 
+import LandingPage from './pages/LandingPage';
 import AppLayout from './components/layout/AppLayout'
 import LoginPage from './pages/auth/LoginPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
@@ -49,7 +50,7 @@ export default function App() {
       />
 <Routes>
         {/* 1. REDIRECT LINK UTAMA */}
-        <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
 
         {/* 2. RUTE PUBLIK */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
