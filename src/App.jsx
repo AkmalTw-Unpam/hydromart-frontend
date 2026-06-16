@@ -47,24 +47,28 @@ export default function App() {
           success: { iconTheme: { primary: '#0abfbc', secondary: '#fff' } },
         }}
       />
-      <Routes>
+<Routes>
+        {/* 1. REDIRECT LINK UTAMA */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+        {/* 2. RUTE PUBLIK */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
-        
-          <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
 
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard"   element={<DashboardPage />} />
-          <Route path="items"       element={<ItemsPage />} />
-          <Route path="incoming"    element={<IncomingPage />} />
-          <Route path="outgoing"    element={<OutgoingPage />} />
-          <Route path="suppliers"   element={<SuppliersPage />} />
-          <Route path="categories"  element={<CategoriesPage />} />
-          <Route path="reports"     element={<ReportsPage />} />
-          <Route path="profile"     element={<ProfilePage />} />
+        {/* 3. RUTE PRIVAT (Perhatikan: Tag pembuka di baris ini TIDAK diakhiri />) */}
+        <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="items" element={<ItemsPage />} />
+          <Route path="incoming" element={<IncomingPage />} />
+          <Route path="outgoing" element={<OutgoingPage />} />
+          <Route path="suppliers" element={<SuppliersPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
+
+        {/* 4. ANTISIPASI LINK NYASAR */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
