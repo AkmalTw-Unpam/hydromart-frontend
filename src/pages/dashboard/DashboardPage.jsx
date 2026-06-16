@@ -55,11 +55,7 @@ export default function DashboardPage() {
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">Dashboard Monitor</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Ringkasan data dan pergerakan mutasi barang gudang real-time.</p>
         </div>
-        {!loading && (
-          <div className="text-[11px] font-medium text-slate-400 bg-white dark:bg-navy-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-navy-700 shadow-sm self-start md:self-auto">
-            Status Sistem: <span className="text-emerald-500 font-semibold">● Terhubung ke Backend</span>
-          </div>
-        )}
+        {/* STATUS SISTEM BERHASIL DIHILANGKAN DARI SINI */}
       </div>
 
       {/* STAT CARDS GRID */}
@@ -172,7 +168,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* KARTU: AKTIVITAS TERBARU (Proteksi Penuh dari Objek Berpotensi Null) */}
+        {/* KARTU: AKTIVITAS TERBARU */}
         <div className="bg-white dark:bg-[#111c44] border border-slate-200/60 dark:border-navy-700/50 rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-navy-700/50 flex items-center gap-2">
             <Clock size={16} className="text-sky-500" />
