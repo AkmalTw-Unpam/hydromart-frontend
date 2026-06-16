@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, NavLink } from 'react-router-dom'
-import { Bell, Sun, Moon, Search, LogOut, User, ChevronDown } from 'lucide-react'
+import { Bell, Sun, Moon, Search, LogOut, User, ChevronDown, Menu, X } from 'lucide-react'
 import { useAuthStore, useUIStore } from '../../store'
 import { notificationsApi } from '../../services/api'
 import toast from 'react-hot-toast'
@@ -8,7 +8,7 @@ import clsx from 'clsx'
 
 export default function Topbar() {
   const { user, logout } = useAuthStore()
-  const { darkMode, toggleDark, unreadNotifs, setUnreadNotifs } = useUIStore()
+  const { darkMode, toggleDark, unreadNotifs, setUnreadNotifs, sidebarOpen, toggleSidebar } = useUIStore()
   const navigate = useNavigate()
   const [showNotifs, setShowNotifs] = useState(false)
   const [showUser, setShowUser] = useState(false)
@@ -55,7 +55,17 @@ export default function Topbar() {
   const ROLE_COLORS = { admin: 'badge-red', manager: 'badge-blue', staff: 'badge-green' }
 
   return (
-    <header className="h-16 flex items-center px-6 gap-4 bg-white dark:bg-navy-900 border-b border-slate-100 dark:border-navy-800 sticky top-0 z-30">
+    <header className="h-16 flex items-center px-4 md:px-6 gap-3 md:gap-4 bg-white dark:bg-navy-900 border-b border-slate-100 dark:border-navy-800 sticky top-0 z-30">
+      
+      {/* TOMBOL HAMBURGER MENU (KHUSUS DI HP) */}
+      <button 
+        onClick={toggleSidebar} 
+        className="block md:hidden p-2 -ml-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors"
+        title="Buka Menu"
+      >
+        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
       {/* Search */}
       <div className="flex-1 max-w-sm">
         <div className="relative">
@@ -63,7 +73,7 @@ export default function Topbar() {
           <input
             type="text"
             placeholder="Cari barang, kode..."
-            className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-navy-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100"
+            className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-navy-700 rouded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100 rounded-xl"
           />
         </div>
       </div>
@@ -122,8 +132,8 @@ export default function Topbar() {
         {/* User Menu */}
         <div ref={userRef} className="relative">
           <button
-            onClick={() => { setShowUser(v => !v); setShowNotifs(false) }}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors"
+            onClick={window.innerWidth < 640 ? () => navigate('/profile') : () => { setShowUser(v => !v); setShowNotifs(false) }}
+            className="flex items-center gap-2 px-1 sm:px-3 py-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors"
           >
             <img src={user?.avatar_url} alt={user?.name} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary-200 dark:ring-primary-800" />
             <div className="hidden sm:block text-left">

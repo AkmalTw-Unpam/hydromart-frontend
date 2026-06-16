@@ -43,10 +43,15 @@ export default function Sidebar() {
   return (
     <aside
       className={clsx(
-        // PERBAIKAN RESPONSIVE: Di HP (default) dia tersembunyi ('hidden'), baru di desktop ('md:flex') dia muncul normal.
-        'fixed left-0 top-0 h-full z-40 hidden md:flex flex-col transition-all duration-300',
+        'fixed top-0 h-full z-40 flex flex-col transition-all duration-300',
         'bg-white dark:bg-navy-900 border-r border-slate-100 dark:border-navy-800',
-        sidebarOpen ? 'w-[260px]' : 'w-[72px]'
+        
+        // PERBAIKAN NAVIGASI HP: 
+        // Di PC (md:), sidebarOpen true lebar 260px, false menciut 72px di left-0.
+        // Di HP (layar < 768px), jika sidebarOpen true maka bergeser masuk (left-0), jika false maka sembunyi keluar layar (-left-full).
+        sidebarOpen 
+          ? 'w-[260px] left-0' 
+          : 'w-[72px] -left-full md:left-0'
       )}
     >
       {/* Logo */}
@@ -54,18 +59,17 @@ export default function Sidebar() {
         <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-sm">
           <Droplets size={18} className="text-white" />
         </div>
-        {sidebarOpen && (
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">Hydromart</p>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight truncate">Inventory System</p>
-          </div>
-        )}
+        {/* Di HP, paksa teks logo muncul saat sidebar terbuka geser */}
+        <div className={clsx('min-w-0', sidebarOpen ? 'block' : 'hidden md:block')}>
+          <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">Hydromart</p>
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight truncate">Inventory System</p>
+        </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        {!sidebarOpen && <div className="h-2" />}
-        {sidebarOpen && (
+        {(!sidebarOpen) && <div className="h-2 hidden md:block" />}
+        {(sidebarOpen || window.innerWidth < 768) && (
           <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-widest px-3 mb-2">
             Menu Utama
           </p>
@@ -74,21 +78,28 @@ export default function Sidebar() {
           <NavLink
             key={to}
             to={to}
+            onClick={() => {
+              // DETEKSI HP: Jika diklik di layar HP, otomatis panggil toggleSidebar() untuk menutup menu kembali
+              if (window.innerWidth < 768) {
+                toggleSidebar()
+              }
+            }}
             className={({ isActive }) =>
-              clsx('sidebar-link', isActive && 'active', !sidebarOpen && 'justify-center px-2')
+              clsx('sidebar-link', isActive && 'active', !sidebarOpen && 'justify-center px-2 md:px-2')
             }
             title={!sidebarOpen ? label : undefined}
           >
             <Icon size={18} className="flex-shrink-0" />
-            {sidebarOpen && <span className="truncate">{label}</span>}
+            <span className={clsx('truncate', sidebarOpen ? 'block' : 'block md:hidden')}>{label}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* Collapse Toggle */}
+      {/* Tombol ciutkan bawaan ini disembunyikan murni di HP (hidden md:flex) agar tidak merusak fungsionalitas */}
       <button
         onClick={toggleSidebar}
-        className="flex items-center justify-center w-full p-4 border-t border-slate-100 dark:border-navy-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+        className="hidden md:flex items-center justify-center w-full p-4 border-t border-slate-100 dark:border-navy-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
       >
         {sidebarOpen
           ? <><ChevronLeft size={16} /><span className="ml-2 text-xs">Ciutkan</span></>
