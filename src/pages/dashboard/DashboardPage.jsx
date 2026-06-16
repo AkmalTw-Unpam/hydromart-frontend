@@ -55,7 +55,7 @@ export default function DashboardPage() {
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">Dashboard Monitor</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Ringkasan data dan pergerakan mutasi barang gudang real-time.</p>
         </div>
-        {/* STATUS SISTEM BERHASIL DIHILANGKAN DARI SINI */}
+        {/* BADGE STATUS SUDAH DIHAPUS DARI SINI */}
       </div>
 
       {/* STAT CARDS GRID */}
