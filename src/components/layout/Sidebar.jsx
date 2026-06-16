@@ -43,9 +43,16 @@ export default function Sidebar() {
   return (
     <aside
       className={clsx(
-        'fixed left-0 top-0 h-full z-40 flex flex-col transition-all duration-300',
+        'fixed top-0 h-full z-40 flex flex-col transition-all duration-300',
         'bg-white dark:bg-navy-900 border-r border-slate-100 dark:border-navy-800',
-        sidebarOpen ? 'w-[260px]' : 'w-[72px]'
+        
+        // PERBAIKAN RESPONSIF HP:
+        // Di HP (layar kecil), posisi default sidebar ditendang keluar layar (-left-full atau -translate-x-full).
+        // Jika tombol menu/sidebar aktif di HP, dia bakal geser masuk (left-0).
+        // Di PC/Desktop (md:), dia bakal selalu nangkring normal di left-0 dengan lebar sesuai state sidebarOpen.
+        sidebarOpen 
+          ? 'w-[260px] left-0 md:left-0' 
+          : 'w-[72px] -left-full md:left-0'
       )}
     >
       {/* Logo */}
@@ -85,9 +92,10 @@ export default function Sidebar() {
       </nav>
 
       {/* Collapse Toggle */}
+      {/* Tombol ciutkan ini disembunyikan di HP (hidden md:flex) karena fungsinya diganti full-toggle via Topbar/HP */}
       <button
         onClick={toggleSidebar}
-        className="flex items-center justify-center w-full p-4 border-t border-slate-100 dark:border-navy-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+        className="hidden md:flex items-center justify-center w-full p-4 border-t border-slate-100 dark:border-navy-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
       >
         {sidebarOpen
           ? <><ChevronLeft size={16} /><span className="ml-2 text-xs">Ciutkan</span></>
