@@ -48,10 +48,12 @@ export default function App() {
         }}
       />
       <Routes>
+        
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
-        <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+        
+          <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
 
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard"   element={<DashboardPage />} />
