@@ -22,15 +22,26 @@ export default function AppLayout() {
     return () => clearInterval(interval)
   }, [])
 
+  // Deteksi ukuran layar untuk memastikan responsivitas inline style
+  // Jika lebar layar di bawah 768px (Mobile/HP), marginLeft otomatis dinonaktifkan (0px)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-navy-950">
+      {/* SIDEBAR UTAMA */}
       <Sidebar />
+      
+      {/* AREA KONTEN UTAMA */}
       <div
         className="flex-1 flex flex-col min-w-0 transition-all duration-300"
-        style={{ marginLeft: sidebarOpen ? '260px' : '72px' }}
+        style={{ 
+          marginLeft: isMobile 
+            ? '0px' 
+            : (sidebarOpen ? '260px' : '72px') 
+        }}
       >
         <Topbar />
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-screen-2xl mx-auto animate-enter">
             <Outlet />
           </div>
