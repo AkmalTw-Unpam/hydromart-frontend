@@ -237,8 +237,10 @@ export default function ItemsPage() {
       {/* Table */}
       {loading ? <TableSkeleton cols={7} rows={10} /> : (
         <div className="card overflow-hidden">
-          <div className="table-wrapper">
-            <table className="table">
+          {/* PERBAIKAN RESPONSIVE HP: Ditambahkan wrapper overflow-x-auto agar tabel bisa di-scroll di HP */}
+          <div className="w-full overflow-x-auto">
+            {/* Ditambahkan min-w-[900px] agar kolom tabel di HP lebar proporsional & tidak gepeng berhimpitan */}
+            <table className="table w-full min-w-[900px]">
               <thead>
                 <tr>
                   <th>Barang</th><th>Kategori</th><th>Supplier</th>
@@ -255,7 +257,10 @@ export default function ItemsPage() {
                   <tr key={item.id}>
                     <td>
                       <div className="flex items-center gap-3">
-                        <img src={item.image_url} alt={item.name} className="w-9 h-9 rounded-xl object-cover bg-slate-100 flex-shrink-0" />
+                        {/* PERBAIKAN GAMBAR PUTIH: Diganti menggunakan ikon boks kontainer (Package) bawaan lucide yang rapi */}
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-navy-800 flex items-center justify-center text-slate-400 dark:text-slate-500 flex-shrink-0 border border-slate-200/40 dark:border-navy-700/40">
+                          <Package size={16} />
+                        </div>
                         <div>
                           <p className="font-medium text-slate-800 dark:text-slate-100 text-sm">{item.name}</p>
                           <p className="text-xs text-slate-400 font-mono">{item.code}</p>
