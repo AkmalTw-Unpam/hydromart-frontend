@@ -46,10 +46,9 @@ export default function Sidebar() {
         'fixed top-0 h-full z-40 flex flex-col transition-all duration-300',
         'bg-white dark:bg-navy-900 border-r border-slate-100 dark:border-navy-800',
         
-        // PERBAIKAN RESPONSIF HP:
-        // Di HP (layar kecil), posisi default sidebar ditendang keluar layar (-left-full atau -translate-x-full).
-        // Jika tombol menu/sidebar aktif di HP, dia bakal geser masuk (left-0).
-        // Di PC/Desktop (md:), dia bakal selalu nangkring normal di left-0 dengan lebar sesuai state sidebarOpen.
+        // Aturan Lebar dan Posisi Sidebar:
+        // Di PC/Desktop (md:), selalu nangkring di left-0 dengan lebar sesuai state sidebarOpen (260px atau 72px).
+        // Di HP, jika sidebarOpen true maka muncul selebar 260px, jika false maka sembunyi total (-left-full).
         sidebarOpen 
           ? 'w-[260px] left-0 md:left-0' 
           : 'w-[72px] -left-full md:left-0'
@@ -91,8 +90,8 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Collapse Toggle */}
-      {/* Tombol ciutkan ini disembunyikan di HP (hidden md:flex) karena fungsinya diganti full-toggle via Topbar/HP */}
+      {/* Collapse Toggle (Tombol Ciutkan) */}
+      {/* Di HP dia akan 'hidden' (sembunyi murni), dan mulai layar desktop 'md:flex' (muncul sebagai flexbox) */}
       <button
         onClick={toggleSidebar}
         className="hidden md:flex items-center justify-center w-full p-4 border-t border-slate-100 dark:border-navy-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
