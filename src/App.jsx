@@ -49,7 +49,7 @@ export default function App() {
       />
 <Routes>
         {/* 1. REDIRECT LINK UTAMA */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
 
         {/* 2. RUTE PUBLIK */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
