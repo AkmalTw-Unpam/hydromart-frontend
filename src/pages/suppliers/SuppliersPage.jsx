@@ -4,7 +4,6 @@ import { Modal, PageHeader, TableSkeleton, Pagination, EmptyState, ConfirmDialog
 import { Plus, Pencil, Trash2, Truck, Phone, Mail, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-// PERBAIKAN: Sertakan status awal is_active di INIT form
 const INIT = { name: '', contact_person: '', phone: '', email: '', address: '', city: '', notes: '', is_active: true }
 
 export default function SuppliersPage() {
@@ -34,7 +33,6 @@ export default function SuppliersPage() {
 
   const openCreate = () => { setEditTarget(null); setForm(INIT); setErrors({}); setModalOpen(true) }
   
-  // PERBAIKAN: Set form data lengkap beserta is_active bawaan supplier saat edit dibuka
   const openEdit = (s) => { 
     setEditTarget(s)
     setForm({ 
@@ -54,17 +52,33 @@ export default function SuppliersPage() {
   const handleSave = async () => {
     setSaving(true); setErrors({})
     try {
+      // BERSIHKAN DATA: Hanya kirim field yang diizinkan backend (filter field otomatis)
+      const payload = {
+        name: form.name,
+        contact_person: form.contact_person,
+        phone: form.phone,
+        email: form.email,
+        address: form.address,
+        city: form.city,
+        notes: form.notes,
+        is_active: form.is_active
+      }
+
       if (editTarget) { 
-        await suppliersApi.update(editTarget.id, form)
+        await suppliersApi.update(editTarget.id, payload)
         toast.success('Supplier diperbarui.') 
       } else { 
-        await suppliersApi.create(form)
+        await suppliersApi.create(payload)
         toast.success('Supplier ditambahkan.') 
       }
       setModalOpen(false); fetch()
     } catch (err) {
-      if (err.response?.status === 422) setErrors(err.response.data.errors || {})
-      else toast.error(err.response?.data?.message || 'Gagal menyimpan data.')
+      if (err.response?.status === 422) {
+        setErrors(err.response.data.errors || {})
+        toast.error('Gagal menyimpan: Cek kembali inputan Anda.')
+      } else {
+        toast.error(err.response?.data?.message || 'Gagal menyimpan data.')
+      }
     }
     setSaving(false)
   }
@@ -77,7 +91,6 @@ export default function SuppliersPage() {
       setDeleteTarget(null)
       fetch() 
     } catch (err) { 
-      // PERBAIKAN: Tangkap pesan spesifik keterikatan barang dari Laravel Api Controller
       const errorMsg = err.response?.data?.message || 'Gagal menghapus supplier.'
       toast.error(errorMsg, { duration: 4000 }) 
     }
@@ -164,7 +177,6 @@ export default function SuppliersPage() {
             <textarea rows={2} className="textarea" value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
           </FormField>
 
-          {/* PERBAIKAN: Input Toggle Status Aktif/Nonaktif khusus saat aksi EDIT TARGET */}
           {editTarget && (
             <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-navy-800">
               <input 
@@ -175,7 +187,7 @@ export default function SuppliersPage() {
                 onChange={e => setForm(p => ({ ...p, is_active: e.target.checked }))} 
               />
               <label htmlFor="is_active" className="text-sm font-medium text-slate-700 dark:text-slate-300 select-none cursor-pointer">
-                Supplier Aktif (Dapat digunakan dalam transaksi mutasi barang)
+                Supplier Aktif
               </label>
             </div>
           )}
