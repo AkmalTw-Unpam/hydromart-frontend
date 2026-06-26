@@ -70,11 +70,11 @@ export const suppliersApi = {
   create: data   => api.post('/suppliers', data),
   get:     id     => api.get(`/suppliers/${id}`),
   
-  // PERBAIKAN UTAMA: Menggunakan method PUT untuk penyesuaian route resource Laravel 
-  // dan menghapus multipart/form-data karena data supplier murni teks JSON.
-  update: (id, data) => api.put(`/suppliers/${id}`, data), 
+  // SOLUSI TOTAL 405: Menggunakan POST murni ke route endpoint, 
+  // tetapi menyisipkan properti '_method': 'PUT' di dalam body payload JSON data.
+  // Cara ini membuat Laravel mengenali mutasi update dengan sangat lancar dan aman.
+  update: (id, data) => api.post(`/suppliers/${id}`, { ...data, _method: 'PUT' }), 
   
-  // PERBAIKAN UTAMA: Memastikan method DELETE terkirim ke path ID yang benar
   delete: (id) => api.delete(`/suppliers/${id}`),
 }
 
