@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { itemsApi, categoriesApi, suppliersApi } from '../../services/api'
+// PERBAIKAN IMPORT: Memasukkan instance 'api' utama untuk bypass rute update secara murni
+import api, { itemsApi, categoriesApi, suppliersApi } from '../../services/api'
 import { Modal, PageHeader, StockBadge, TableSkeleton, Pagination, EmptyState, ConfirmDialog, FormField, SearchInput } from '../../components/ui'
 import { Plus, Pencil, Trash2, Package, SlidersHorizontal, QrCode, RefreshCw, Image } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -151,17 +152,18 @@ export default function ItemsPage() {
     setFormErrors({})
     const fd = new FormData()
     
-    // Memasukkan semua data dari state form ke FormData
     Object.entries(form).forEach(([k, v]) => { if (v !== null && v !== '') fd.append(k, v) })
     
     try {
       if (editItem) {
-        // Trik Laravel Spoofing: Kirim data lewat POST, tapi beri tahu Laravel kalau ini adalah PUT
+        // Trik Laravel Spoofing: Sisipkan info _method = PUT ke dalam FormData
         fd.append('_method', 'PUT')
         
-        // PERBAIKAN AKURAT: bypass langsung menggunakan itemsApi.update 
-        // Jika file api.js kamu mengexport instance 'api' utama, kamu juga bisa panggil: api.post(`/items/${editItem.id}`, fd)
-        await itemsApi.update(editItem.id, fd)
+        // PERBAIKAN KRUSIAL: Memaksa Axios mengirim request POST murni langsung dari instance 'api' 
+        // untuk menghindari bentrokan fungsi wrapper di file api.js lu yang mengunci method PUT.
+        await api.post(`/items/${editItem.id}`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
         
         toast.success('Barang berhasil diperbarui.')
       } else {
@@ -169,7 +171,7 @@ export default function ItemsPage() {
         toast.success('Barang berhasil ditambahkan.')
       }
       setModalOpen(false)
-      fetchItems() // Menarik ulang data agar tabel langsung bersih/sinkron di layar
+      fetchItems() 
     } catch (err) {
       if (err.response?.status === 422) setFormErrors(err.response.data.errors || {})
       else toast.error(err.response?.data?.message || 'Gagal menyimpan.')
@@ -183,7 +185,6 @@ export default function ItemsPage() {
       await itemsApi.delete(deleteTarget.id)
       toast.success('Barang dihapus.')
       setDeleteTarget(null)
-      // PERBAIKAN HAPUS: Memanggil fungsi fetchItems() agar layar merefresh dan data langsung hilang dari tabel
       fetchItems()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Gagal menghapus.')
