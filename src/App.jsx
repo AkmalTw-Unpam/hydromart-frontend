@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore, useUIStore } from './store'
 
-import LandingPage from './pages/LandingPage' // Sesuaikan dengan folder tempat lu nyimpen filenya
 import AppLayout from './components/layout/AppLayout'
 import LoginPage from './pages/auth/LoginPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
@@ -31,11 +30,6 @@ function PublicRoute({ children }) {
   return children
 }
 
-// LANDING PAGE DIBAWAH INI LANGSUNG MERENDER LOGIN PAGE
-function LandingPage() {
-  return <Navigate to="/login" replace />
-}
-
 export default function App() {
   const { darkMode } = useUIStore()
 
@@ -54,8 +48,8 @@ export default function App() {
         }}
       />
       <Routes>
-        {/* 1. HALAMAN UTAMA - Langsung panggil LandingPage di path "/" */}
-        <Route path="/" element={<LandingPage />} />
+        {/* 1. HALAMAN UTAMA - Langsung dilempar (Redirect) ke rute /login secara bersih */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
         {/* 2. RUTE PUBLIK */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
