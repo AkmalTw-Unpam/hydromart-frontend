@@ -17,10 +17,9 @@ import NotFoundPage from './pages/NotFoundPage'
 import RegisterPage from './pages/auth/RegisterPage' 
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 
-function PrivateRoute({ children, roles }) {
-  const { isAuthenticated, user } = useAuthStore()
+function PrivateRoute({ children }) {
+  const { isAuthenticated } = useAuthStore()
   if (!isAuthenticated()) return <Navigate to="/login" replace />
-  if (roles && !roles.includes(user?.role)) return <Navigate to="/dashboard" replace />
   return children
 }
 
@@ -28,6 +27,12 @@ function PublicRoute({ children }) {
   const { isAuthenticated } = useAuthStore()
   if (isAuthenticated()) return <Navigate to="/dashboard" replace />
   return children
+}
+
+// PERBAIKAN: Logika redirect ditaruh di dalam komponen fungsi yang valid
+function LandingPage() {
+  const { isAuthenticated } = useAuthStore()
+  return isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
 }
 
 export default function App() {
@@ -48,8 +53,8 @@ export default function App() {
         }}
       />
       <Routes>
-        {/* 1. HALAMAN UTAMA - Langsung dilempar (Redirect) ke rute /login secara bersih */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* 1. HALAMAN UTAMA - Memanggil fungsi LandingPage dengan aman */}
+        <Route path="/" element={<LandingPage />} />
 
         {/* 2. RUTE PUBLIK */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
@@ -57,15 +62,15 @@ export default function App() {
         <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
 
         {/* 3. RUTE PRIVAT */}
-        <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="items" element={<ItemsPage />} />
-          <Route path="incoming" element={<IncomingPage />} />
-          <Route path="outgoing" element={<OutgoingPage />} />
-          <Route path="suppliers" element={<SuppliersPage />} />
-          <Route path="categories" element={<CategoriesPage />} />
-          <Route path="reports" element={<ReportsPage />} />
-          <Route path="profile" element={<ProfilePage />} />
+        <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/items" element={<ItemsPage />} />
+          <Route path="/incoming" element={<IncomingPage />} />
+          <Route path="/outgoing" element={<OutgoingPage />} />
+          <Route path="/suppliers" element={<SuppliersPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
         {/* 4. ANTISIPASI LINK NYASAR */}
