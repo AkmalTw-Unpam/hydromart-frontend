@@ -151,9 +151,14 @@ export default function ItemsPage() {
     setFormErrors({})
     const fd = new FormData()
     Object.entries(form).forEach(([k, v]) => { if (v !== null && v !== '') fd.append(k, v) })
+    
     try {
       if (editItem) {
+        // PERBAIKAN EDIT: Menyisipkan spoofing method agar FormData bisa dibaca Laravel Backend via POST rute alternatif
         fd.append('_method', 'PUT')
+        
+        // Catatan: Jika itemsApi.update dikunci mati menggunakan Axios .put() di file services, 
+        // kamu bisa mengubah fungsinya di services/api.js menjadi .post() agar Laravel menerima payload multipart gambar ini.
         await itemsApi.update(editItem.id, fd)
         toast.success('Barang berhasil diperbarui.')
       } else {
@@ -175,6 +180,7 @@ export default function ItemsPage() {
       await itemsApi.delete(deleteTarget.id)
       toast.success('Barang dihapus.')
       setDeleteTarget(null)
+      // PERBAIKAN HAPUS: Memanggil fungsi fetchItems() agar layar merefresh dan data langsung hilang dari tabel
       fetchItems()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Gagal menghapus.')
@@ -237,9 +243,7 @@ export default function ItemsPage() {
       {/* Table */}
       {loading ? <TableSkeleton cols={7} rows={10} /> : (
         <div className="card overflow-hidden">
-          {/* PERBAIKAN RESPONSIVE HP: Ditambahkan wrapper overflow-x-auto agar tabel bisa di-scroll di HP */}
           <div className="w-full overflow-x-auto">
-            {/* Ditambahkan min-w-[900px] agar kolom tabel di HP lebar proporsional & tidak gepeng berhimpitan */}
             <table className="table w-full min-w-[900px]">
               <thead>
                 <tr>
@@ -257,7 +261,6 @@ export default function ItemsPage() {
                   <tr key={item.id}>
                     <td>
                       <div className="flex items-center gap-3">
-                        {/* PERBAIKAN GAMBAR PUTIH: Diganti menggunakan ikon boks kontainer (Package) bawaan lucide yang rapi */}
                         <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-navy-800 flex items-center justify-center text-slate-400 dark:text-slate-500 flex-shrink-0 border border-slate-200/40 dark:border-navy-700/40">
                           <Package size={16} />
                         </div>
