@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '../../store'
 import toast from 'react-hot-toast'
-import { Eye, EyeOff, Droplets, ArrowRight, Lock, Mail, Download } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, Lock, Mail, Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function LoginPage() {
@@ -45,9 +45,12 @@ export default function LoginPage() {
       <div className="w-full lg:w-[480px] flex flex-col justify-center px-8 sm:px-12 bg-white dark:bg-navy-900">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-200 dark:shadow-primary-900/30">
-            <Droplets size={20} className="text-white" />
-          </div>
+          {/* PERBAIKAN LOGO: Memanggil aset /hui-logo.png yang tersimpan di public folder */}
+          <img 
+            src="/hui-logo.png" 
+            className="w-10 h-10 object-contain rounded-xl" 
+            alt="HUI Logo" 
+          />
           <div>
             <p className="font-bold text-slate-900 dark:text-white leading-tight">PT. Hydromart</p>
             <p className="text-xs text-slate-400 leading-tight">Utama Indonesia</p>
