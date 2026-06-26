@@ -11,17 +11,14 @@ api.interceptors.request.use(config => {
   return config
 })
 
-api.interceptors.response.use(
-  res => res,
-  err => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('hm_token')
-      localStorage.removeItem('hm_user')
-      window.location.href = '/login'
-    }
-    return Promise.reject(err)
+api.interceptors.response.use(res => res, err => {
+  if (err.response?.status === 401) {
+    localStorage.removeItem('hm_token')
+    localStorage.removeItem('hm_user')
+    window.location.href = '/login'
   }
-)
+  return Promise.reject(err)
+})
 
 export default api
 
@@ -44,7 +41,7 @@ export const itemsApi = {
   create: data   => api.post('/items', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   get:    id     => api.get(`/items/${id}`),
   update: (id, data) => api.post(`/items/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  delete: id     => api.post(`/items/${id}/delete`), // GANTI KE POST
+  delete: id     => api.post(`/items/${id}/delete`),
   adjust: (id, data) => api.post(`/items/${id}/adjust`, data),
 }
 
@@ -52,15 +49,15 @@ export const categoriesApi = {
   list:   params => api.get('/categories', { params }),
   create: data   => api.post('/categories', data),
   update: (id, data) => api.post(`/categories/${id}`, data),
-  delete: id     => api.post(`/categories/${id}/delete`), // GANTI KE POST
+  delete: id     => api.post(`/categories/${id}/delete`),
 }
 
 export const suppliersApi = {
   list:   params => api.get('/suppliers', { params }),
   create: data   => api.post('/suppliers', data),
   get:    id     => api.get(`/suppliers/${id}`),
-  update: (id, data) => api.post(`/suppliers/${id}`, data), // POST MURNI
-  delete: id     => api.post(`/suppliers/${id}/delete`),    // POST MURNI
+  update: (id, data) => api.post(`/suppliers/${id}`, data),
+  delete: id     => api.post(`/suppliers/${id}/delete`),
 }
 
 export const transactionsApi = {
@@ -74,7 +71,7 @@ export const notificationsApi = {
   list:        params => api.get('/notifications', { params }),
   unreadCount: ()   => api.get('/notifications/unread-count'),
   markRead:    ids  => api.post('/notifications/read', { ids }),
-  markAllRead: ()   => api.post('/notifications/read-all'),
+  markAllRead: ()   => api.post('/notifications/mark-all-read'),
 }
 
 export const reportsApi = {
