@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore, useUIStore } from './store'
 
+import LandingPage from './pages/LandingPage' // Sesuaikan dengan folder tempat lu nyimpen filenya
 import AppLayout from './components/layout/AppLayout'
 import LoginPage from './pages/auth/LoginPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
@@ -32,7 +33,7 @@ function PublicRoute({ children }) {
 
 // LANDING PAGE DIBAWAH INI LANGSUNG MERENDER LOGIN PAGE
 function LandingPage() {
-  return <LoginPage />
+  return <Navigate to="/login" replace />
 }
 
 export default function App() {
