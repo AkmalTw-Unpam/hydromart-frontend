@@ -29,12 +29,6 @@ function PublicRoute({ children }) {
   return children
 }
 
-// PERBAIKAN: Logika redirect ditaruh di dalam komponen fungsi yang valid
-function LandingPage() {
-  const { isAuthenticated } = useAuthStore()
-  return isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-}
-
 export default function App() {
   const { darkMode } = useUIStore()
 
@@ -53,8 +47,8 @@ export default function App() {
         }}
       />
       <Routes>
-        {/* 1. HALAMAN UTAMA - Memanggil fungsi LandingPage dengan aman */}
-        <Route path="/" element={<LandingPage />} />
+        {/* 1. JALUR TEMBAK LANGSUNG: Akses "/" langsung dipaksa pindah ke "/login" tanpa fungsi perantara */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
         {/* 2. RUTE PUBLIK */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
