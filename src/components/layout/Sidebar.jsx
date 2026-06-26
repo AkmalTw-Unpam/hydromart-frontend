@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useUIStore, useAuthStore } from '../../store'
 import {
   LayoutDashboard, Package, ArrowDownToLine, ArrowUpFromLine,
-  Truck, Tag, FileBarChart, ChevronLeft, ChevronRight, Droplets, X, LogOut
+  Truck, Tag, FileBarChart, ChevronLeft, ChevronRight, X, LogOut
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -61,9 +61,14 @@ export default function Sidebar() {
     >
       {/* HEADER LOGO & TOMBOL CLOSE MOBILE */}
       <div className="flex items-center justify-between px-4 h-16 border-b border-slate-100 dark:border-navy-800">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-sm">
-            <Droplets size={18} className="text-white" />
+        <div className="flex items-center gap-3 min-w-0 w-full">
+          {/* PERBAIKAN LOGO: Memanggil aset /hui-logo.png yang sudah lu simpan di folder public */}
+          <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center overflow-hidden">
+            <img 
+              src="/hui-logo.png" 
+              className="w-full h-full object-contain rounded-xl" 
+              alt="HUI Logo Icon" 
+            />
           </div>
           <div className={clsx(
             'transition-all duration-300 min-w-0',
