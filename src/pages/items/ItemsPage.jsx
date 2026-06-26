@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-// PERBAIKAN IMPORT: Memasukkan instance 'api' utama untuk bypass rute update secara murni
-import api, { itemsApi, categoriesApi, suppliersApi } from '../../services/api'
+// PERBAIKAN RADIKAL: Kita import murni library axios langsung untuk bypass super aman
+import axios from 'axios'
+import { itemsApi, categoriesApi, suppliersApi } from '../../services/api'
 import { Modal, PageHeader, StockBadge, TableSkeleton, Pagination, EmptyState, ConfirmDialog, FormField, SearchInput } from '../../components/ui'
 import { Plus, Pencil, Trash2, Package, SlidersHorizontal, QrCode, RefreshCw, Image } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -156,13 +157,17 @@ export default function ItemsPage() {
     
     try {
       if (editItem) {
-        // Trik Laravel Spoofing: Sisipkan info _method = PUT ke dalam FormData
+        // Trik Spoofing Laravel wajib masuk ke FormData
         fd.append('_method', 'PUT')
         
-        // PERBAIKAN KRUSIAL: Memaksa Axios mengirim request POST murni langsung dari instance 'api' 
-        // untuk menghindari bentrokan fungsi wrapper di file api.js lu yang mengunci method PUT.
-        await api.post(`/items/${editItem.id}`, fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+        // AMAN TOTAL: Paksa axios murni menembak dengan POST tanpa perantara file api.js lu yang ngecache
+        const token = localStorage.getItem('hm_token')
+        await axios.post(`https://hydromart-backend-production.up.railway.app/api/items/${editItem.id}`, fd, {
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            'Accept': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+          }
         })
         
         toast.success('Barang berhasil diperbarui.')
