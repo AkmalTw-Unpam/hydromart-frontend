@@ -151,7 +151,8 @@ export default function ItemsPage() {
     setForm({
       name: item.name, category_id: item.category_id,
       supplier_id: item.supplier_id || '', unit: item.unit,
-      stock: item.stock, min_stock: item.min_stock,
+      stock: Math.round(item.stock), // PERBAIKAN FORMAT: Hilangkan desimal saat masuk ke form input edit
+      min_stock: Math.round(item.min_stock), // PERBAIKAN FORMAT: Hilangkan desimal saat masuk ke form input edit
       price: item.price, location: item.location || '',
       description: item.description || '', image: null,
     })
@@ -168,7 +169,8 @@ export default function ItemsPage() {
     
     try {
       if (editItem) {
-        // PERBAIKAN TOTAL: Kirim POST murni tanpa spoofing _method agar cocok dengan Route::post di Railway
+        fd.append('_method', 'PUT')
+        
         const token = localStorage.getItem('hm_token')
         await axios.post(`https://hydromart-backend-production.up.railway.app/api/items/${editItem.id}`, fd, {
           headers: { 
@@ -207,7 +209,7 @@ export default function ItemsPage() {
 
   const openAdjust = (item) => {
     setAdjustTarget(item)
-    setAdjustForm({ stock: item.stock, notes: '' })
+    setAdjustForm({ stock: Math.round(item.stock), notes: '' }) // PERBAIKAN FORMAT: Bersihkan desimal di form penyesuaian stok
     setAdjustOpen(true)
   }
 
@@ -248,7 +250,7 @@ export default function ItemsPage() {
             <option value="">Semua Kategori</option>
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-          <select className="select w-36" value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1) }}>
+          <select className="select w-36" value={statusFilter} onChange={e => { statusFilter(e.target.value); setPage(1) }}>
             <option value="">Semua Status</option>
             <option value="low">Stok Menipis</option>
             <option value="empty">Stok Habis</option>
@@ -295,10 +297,14 @@ export default function ItemsPage() {
                     <td className="text-xs text-slate-500">{item.supplier?.name || '—'}</td>
                     <td>
                       <span className={clsx('font-semibold text-sm', item.status === 'empty' ? 'text-red-500' : item.status === 'low' ? 'text-amber-500' : 'text-slate-700 dark:text-slate-200')}>
-                        {item.stock} {item.unit}
+                        {/* PERBAIKAN UI: Menggunakan Math.round() agar noll desimal di belakang hilang di kolom tabel STOK */}
+                        {Math.round(item.stock)} {item.unit}
                       </span>
                     </td>
-                    <td className="text-xs text-slate-500">{item.min_stock} {item.unit}</td>
+                    <td className="text-xs text-slate-500">
+                      {/* PERBAIKAN UI: Menggunakan Math.round() agar noll desimal di belakang hilang di kolom tabel MIN STOK */}
+                      {Math.round(item.min_stock)} {item.unit}
+                    </td>
                     <td className="text-xs font-medium">{fmtRp(item.price)}</td>
                     <td><StockBadge status={item.status} /></td>
                     <td className="text-xs text-slate-500">{item.location || '—'}</td>
@@ -370,7 +376,8 @@ export default function ItemsPage() {
         <div className="space-y-4">
           <div className="p-3 bg-slate-50 dark:bg-navy-800 rounded-xl text-sm">
             <span className="text-slate-500">Stok saat ini: </span>
-            <span className="font-bold text-slate-800 dark:text-white">{adjustTarget?.stock} {adjustTarget?.unit}</span>
+            {/* PERBAIKAN UI: Menggunakan Math.round() agar info stok awal di modal bersih dari desimal */}
+            <span className="font-bold text-slate-800 dark:text-white">{Math.round(adjustTarget?.stock)} {adjustTarget?.unit}</span>
           </div>
           <FormField label="Stok Baru" required>
             <input type="number" min={0} className="input" value={adjustForm.stock}
