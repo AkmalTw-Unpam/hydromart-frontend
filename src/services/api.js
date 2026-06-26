@@ -1,9 +1,10 @@
 import axios from 'axios' 
 
 const api = axios.create({
-  // URL Backend Production Railway kamu yang sudah aktif dan merespons 200 OK
+  // URL Backend Production Railway kamu
   baseURL: 'https://hydromart-backend-production.up.railway.app/api',
-  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+  // PERBAIKAN UTAMA: Content-Type dibuang dari global header agar data gambar (FormData) tidak rusak/terkunci menjadi JSON
+  headers: { 'Accept': 'application/json' }
 })
 
 // Pasang Token Otomatis ke Setiap Request
@@ -39,7 +40,7 @@ export const authApi = {
   changePassword: data => api.post('/change-password', data),
 }
 
-// ===== DASHBOARD API (Dipastikan menembak ke rute /dashboard sesuai log 200 OK) =====
+// ===== DASHBOARD API =====
 export const dashboardApi = {
   get: () => api.get('/dashboard'),
 }
@@ -49,6 +50,7 @@ export const itemsApi = {
   list:   params => api.get('/items', { params }),
   create: data   => api.post('/items', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   get:    id     => api.get(`/items/${id}`),
+  // Menggunakan murni POST ke backend agar FormData terbaca sempurna di Laravel
   update: (id, data) => api.post(`/items/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: id     => api.delete(`/items/${id}`),
   adjust: (id, data) => api.post(`/items/${id}/adjust`, data),
@@ -58,7 +60,7 @@ export const itemsApi = {
 export const categoriesApi = {
   list:   params => api.get('/categories', { params }),
   create: data   => api.post('/categories', data),
-  update: (id, data) => api.put(`/categories/${id}`, data),
+  update: (id, data) => api.post(`/categories/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }), // Disinkronkan ke POST backend
   delete: id     => api.delete(`/categories/${id}`),
 }
 
@@ -67,7 +69,7 @@ export const suppliersApi = {
   list:   params => api.get('/suppliers', { params }),
   create: data   => api.post('/suppliers', data),
   get:    id     => api.get(`/suppliers/${id}`),
-  update: (id, data) => api.put(`/suppliers/${id}`, data),
+  update: (id, data) => api.post(`/suppliers/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }), // Disinkronkan ke POST backend
   delete: id     => api.delete(`/suppliers/${id}`),
 }
 
