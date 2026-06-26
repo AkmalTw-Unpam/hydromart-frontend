@@ -49,7 +49,7 @@ export const dashboardApi = {
 export const itemsApi = {
   list:   params => api.get('/items', { params }),
   create: data   => api.post('/items', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  get:    id     => api.get(`/items/${id}`),
+  get:     id     => api.get(`/items/${id}`),
   // Menggunakan murni POST ke backend agar FormData terbaca sempurna di Laravel
   update: (id, data) => api.post(`/items/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: id     => api.delete(`/items/${id}`),
@@ -68,9 +68,14 @@ export const categoriesApi = {
 export const suppliersApi = {
   list:   params => api.get('/suppliers', { params }),
   create: data   => api.post('/suppliers', data),
-  get:    id     => api.get(`/suppliers/${id}`),
-  update: (id, data) => api.post(`/suppliers/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }), // Disinkronkan ke POST backend
-  delete: id     => api.delete(`/suppliers/${id}`),
+  get:     id     => api.get(`/suppliers/${id}`),
+  
+  // PERBAIKAN UTAMA: Menggunakan method PUT untuk penyesuaian route resource Laravel 
+  // dan menghapus multipart/form-data karena data supplier murni teks JSON.
+  update: (id, data) => api.put(`/suppliers/${id}`, data), 
+  
+  // PERBAIKAN UTAMA: Memastikan method DELETE terkirim ke path ID yang benar
+  delete: (id) => api.delete(`/suppliers/${id}`),
 }
 
 // ===== TRANSACTIONS API =====
