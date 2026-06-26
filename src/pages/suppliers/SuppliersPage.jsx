@@ -4,7 +4,8 @@ import { Modal, PageHeader, TableSkeleton, Pagination, EmptyState, ConfirmDialog
 import { Plus, Pencil, Trash2, Truck, Phone, Mail, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const INIT = { name: '', contact_person: '', phone: '', email: '', address: '', city: '', notes: '' }
+// PERBAIKAN: Sertakan status awal is_active di INIT form
+const INIT = { name: '', contact_person: '', phone: '', email: '', address: '', city: '', notes: '', is_active: true }
 
 export default function SuppliersPage() {
   const [rows, setRows] = useState([])
@@ -32,25 +33,54 @@ export default function SuppliersPage() {
   useEffect(() => { fetch() }, [fetch])
 
   const openCreate = () => { setEditTarget(null); setForm(INIT); setErrors({}); setModalOpen(true) }
-  const openEdit = (s) => { setEditTarget(s); setForm({ name: s.name, contact_person: s.contact_person || '', phone: s.phone || '', email: s.email || '', address: s.address || '', city: s.city || '', notes: s.notes || '' }); setErrors({}); setModalOpen(true) }
+  
+  // PERBAIKAN: Set form data lengkap beserta is_active bawaan supplier saat edit dibuka
+  const openEdit = (s) => { 
+    setEditTarget(s)
+    setForm({ 
+      name: s.name, 
+      contact_person: s.contact_person || '', 
+      phone: s.phone || '', 
+      email: s.email || '', 
+      address: s.address || '', 
+      city: s.city || '', 
+      notes: s.notes || '',
+      is_active: s.is_active ?? true
+    })
+    setErrors({})
+    setModalOpen(true) 
+  }
 
   const handleSave = async () => {
     setSaving(true); setErrors({})
     try {
-      if (editTarget) { await suppliersApi.update(editTarget.id, form); toast.success('Supplier diperbarui.') }
-      else { await suppliersApi.create(form); toast.success('Supplier ditambahkan.') }
+      if (editTarget) { 
+        await suppliersApi.update(editTarget.id, form)
+        toast.success('Supplier diperbarui.') 
+      } else { 
+        await suppliersApi.create(form)
+        toast.success('Supplier ditambahkan.') 
+      }
       setModalOpen(false); fetch()
     } catch (err) {
       if (err.response?.status === 422) setErrors(err.response.data.errors || {})
-      else toast.error(err.response?.data?.message || 'Gagal menyimpan.')
+      else toast.error(err.response?.data?.message || 'Gagal menyimpan data.')
     }
     setSaving(false)
   }
 
   const handleDelete = async () => {
     setDeleting(true)
-    try { await suppliersApi.delete(deleteTarget.id); toast.success('Supplier dihapus.'); setDeleteTarget(null); fetch() }
-    catch (err) { toast.error(err.response?.data?.message || 'Gagal menghapus.') }
+    try { 
+      const response = await suppliersApi.delete(deleteTarget.id)
+      toast.success(response.data?.message || 'Supplier dihapus.')
+      setDeleteTarget(null)
+      fetch() 
+    } catch (err) { 
+      // PERBAIKAN: Tangkap pesan spesifik keterikatan barang dari Laravel Api Controller
+      const errorMsg = err.response?.data?.message || 'Gagal menghapus supplier.'
+      toast.error(errorMsg, { duration: 4000 }) 
+    }
     setDeleting(false)
   }
 
@@ -133,6 +163,22 @@ export default function SuppliersPage() {
           <FormField label="Catatan" error={errors?.notes}>
             <textarea rows={2} className="textarea" value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
           </FormField>
+
+          {/* PERBAIKAN: Input Toggle Status Aktif/Nonaktif khusus saat aksi EDIT TARGET */}
+          {editTarget && (
+            <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-navy-800">
+              <input 
+                type="checkbox" 
+                id="is_active"
+                className="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500" 
+                checked={form.is_active} 
+                onChange={e => setForm(p => ({ ...p, is_active: e.target.checked }))} 
+              />
+              <label htmlFor="is_active" className="text-sm font-medium text-slate-700 dark:text-slate-300 select-none cursor-pointer">
+                Supplier Aktif (Dapat digunakan dalam transaksi mutasi barang)
+              </label>
+            </div>
+          )}
         </div>
       </Modal>
 
