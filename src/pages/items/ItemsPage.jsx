@@ -150,30 +150,33 @@ export default function ItemsPage() {
     setSaving(true)
     setFormErrors({})
     const fd = new FormData()
+    
+    // Memasukkan semua data dari state form ke FormData
     Object.entries(form).forEach(([k, v]) => { if (v !== null && v !== '') fd.append(k, v) })
     
     try {
       if (editItem) {
-        // PERBAIKAN EDIT: Menyisipkan spoofing method agar FormData bisa dibaca Laravel Backend via POST rute alternatif
+        // Trik Laravel Spoofing: Kirim data lewat POST, tapi beri tahu Laravel kalau ini adalah PUT
         fd.append('_method', 'PUT')
         
-        // Catatan: Jika itemsApi.update dikunci mati menggunakan Axios .put() di file services, 
-        // kamu bisa mengubah fungsinya di services/api.js menjadi .post() agar Laravel menerima payload multipart gambar ini.
+        // PERBAIKAN AKURAT: bypass langsung menggunakan itemsApi.update 
+        // Jika file api.js kamu mengexport instance 'api' utama, kamu juga bisa panggil: api.post(`/items/${editItem.id}`, fd)
         await itemsApi.update(editItem.id, fd)
+        
         toast.success('Barang berhasil diperbarui.')
       } else {
         await itemsApi.create(fd)
         toast.success('Barang berhasil ditambahkan.')
       }
       setModalOpen(false)
-      fetchItems()
+      fetchItems() // Menarik ulang data agar tabel langsung bersih/sinkron di layar
     } catch (err) {
       if (err.response?.status === 422) setFormErrors(err.response.data.errors || {})
       else toast.error(err.response?.data?.message || 'Gagal menyimpan.')
     }
     setSaving(false)
   }
-
+  
   const handleDelete = async () => {
     setDeleting(true)
     try {
