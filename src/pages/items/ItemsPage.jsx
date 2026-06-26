@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-// PERBAIKAN RADIKAL: Kita import murni library axios langsung untuk bypass super aman
 import axios from 'axios'
 import { itemsApi, categoriesApi, suppliersApi } from '../../services/api'
 import { Modal, PageHeader, StockBadge, TableSkeleton, Pagination, EmptyState, ConfirmDialog, FormField, SearchInput } from '../../components/ui'
@@ -114,10 +113,22 @@ export default function ItemsPage() {
   const fetchItems = useCallback(async () => {
     setLoading(true)
     try {
-      const { data } = await itemsApi.list({ search, category_id: catFilter, status: statusFilter, page, per_page: 12 })
-      setItems(data.data)
-      setMeta(data.meta)
-    } catch (_) {}
+      const token = localStorage.getItem('hm_token')
+      const response = await axios.get('https://hydromart-backend-production.up.railway.app/api/items', {
+        params: { search, category_id: catFilter, status: statusFilter, page, per_page: 12 },
+        headers: {
+          'Accept': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        }
+      })
+
+      if (response.data) {
+        setItems(response.data.data || [])
+        setMeta(response.data)
+      }
+    } catch (_) {
+      toast.error('Gagal mengambil data barang terbaru.')
+    }
     setLoading(false)
   }, [search, catFilter, statusFilter, page])
 
@@ -157,10 +168,7 @@ export default function ItemsPage() {
     
     try {
       if (editItem) {
-        // Trik Spoofing Laravel wajib masuk ke FormData
-        fd.append('_method', 'PUT')
-        
-        // AMAN TOTAL: Paksa axios murni menembak dengan POST tanpa perantara file api.js lu yang ngecache
+        // PERBAIKAN TOTAL: Kirim POST murni tanpa spoofing _method agar cocok dengan Route::post di Railway
         const token = localStorage.getItem('hm_token')
         await axios.post(`https://hydromart-backend-production.up.railway.app/api/items/${editItem.id}`, fd, {
           headers: { 
