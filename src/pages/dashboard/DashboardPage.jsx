@@ -119,9 +119,9 @@ export default function DashboardPage() {
         <div className="bg-white dark:bg-[#111c44] border border-slate-200/60 dark:border-navy-700/50 rounded-xl p-5 shadow-sm">
           <div className="mb-5">
             <h3 className="font-semibold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-              <TrendingUp size={16} className="text-primary-500" /> Barang Paling Aktif
+              <TrendingUp size={16} className="text-primary-500" /> Stok Barang Terbesar
             </h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">Berdasarkan volume keluar</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">Berdasarkan stok tersedia</p>
           </div>
           {loading ? <Skeleton className="h-56 rounded-lg" /> : (
             <ResponsiveContainer width="100%" height={220}>
